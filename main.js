@@ -253,14 +253,14 @@ let printPlayerPosition = () => {
     console.log(`x: ${PLAYER.body.position.x}`);
     console.log(`y: ${PLAYER.body.position.y}`);
     console.log(`z: ${PLAYER.body.position.z}`);
-    console.log("-- -- -- -- -- -- --\n")
+    console.log("-- -- -- -- -- -- --\n");
 }
 // ____________________________________________________________________________________________________________________
 // Everything above is the bare minimum for getting a 1x2x1 player with first person camera + mouse and keyboard inputs
 // below is dedicated to a new game
 // ====================================================================================================================
 
-
+//  i#1 : dodge v parry v shoot
 
 
 
