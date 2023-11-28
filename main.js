@@ -166,6 +166,14 @@ let onKeyUp = (event) => {
   }
 }
 
+let checkForWall = (start, direction, length) => {
+  let raycast = new THREE.Raycaster(start, direction, 0.1, length);
+  let intersections = raycast.intersectObjects(scene.children);
+  console.log(intersections)
+}
+
+
+
 window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
 
@@ -190,9 +198,35 @@ let playerInputs = () => {
   if(!isAlreadyDead) {
     if(mouse[2] == true && PLAYER.time_since_last_dodge + PLAYER.dodge_cooldown < Date.now()) {
       if(keys.W || keys.A || keys.S || keys.D) {
-        // default dodge forward
+        // get direction
+
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        direction.set(0, 0, 0);
+
+        if (keys.W) direction.z -= 1;
+        if (keys.A) direction.x -= 1;
+        if (keys.S) direction.z += 1;
+        if (keys.D) direction.x += 1;
+
+        direction.normalize();
+        const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
+        velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
+        // PLAYER.dodge(velocity);
+        checkForWall(PLAYER.body.position, velocity, 100)
+      } else {
+        // default forward
+        // get direction
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        direction.set(0, 0, 1);
+
+        direction.normalize();
+        const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
+        velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
+        PLAYER.dodge(velocity);
       }
-      PLAYER.dodge();
+      
     }
   }
 
