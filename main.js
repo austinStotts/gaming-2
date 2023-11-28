@@ -51,10 +51,10 @@ world.quatNormalizeSkip = 0;
 world.quatNormalizeFast = false;
 world.defaultContactMaterial.contactEquationStiffness = 1e9;
 world.defaultContactMaterial.contactEquationRelaxation = 4;
-world.gravity.set(0,-10,0);
+world.gravity.set(0,-25,0);
 world.broadphase = new CANNON.NaiveBroadphase();
 // let phyMaterial = new CANNON.Material("slipperyMaterial");
-// let phyContactMaterial = new CANNON.ContactMaterial(phyMaterial, phyMaterial, 0.0, 0.3);
+// let phyContactMaterial = new CANNON.ContactMaterial(phyMaterial, phyMaterial, {friction: 0.0, restitution: 0.3});
 // world.addContactMaterial(phyContactMaterial)
 // world.defaultContactMaterial.friction = 0.05;
 let solver = new CANNON.GSSolver();
@@ -68,24 +68,24 @@ let create_player_body = (player) => {
   let playerMaterial = new CANNON.Material("playerMaterial");
   playerMaterial.friction = 0.0;
   playerMaterial.restitution = 0;
-  let playerBody = new CANNON.Body({ shape: shape, mass: 50, fixedRotation: true });
+  let playerBody = new CANNON.Body({ shape: shape, mass: 500, fixedRotation: true });
   playerBody.material = playerMaterial;
-  let l = [0,2,0];
+  let l = [0,3,0];
   playerBody.position.set(l[0],l[1],l[2]);
   playerBody.collisionFilterGroup = 1;
   playerBody.collisionFilterMask = 1;
   playerBody.userData = {collisionClass: "player", id: `${player.id}`}
-  playerBody.addEventListener("collide", playerCollision)
+  // playerBody.addEventListener("collide", playerCollision)
   player.set_body(playerBody)
   world.addBody(playerBody);
 }
 
 
 let playerCollision = (event) => {
-  if(event.body.userData.collisionClass == "floor") { isJumping=false }
-  else if(event.body.userData.collisionClass == "enemyProjectile" || event.target.userData.collisionClass == "enemyProjectile") {
-    PLAYER.take_damage(event.body.userData.damage || event.target.userData.damage);
-  }
+  // if(event.body.userData.collisionClass == "floor") { isJumping=false }
+  // else if(event.body.userData.collisionClass == "enemyProjectile" || event.target.userData.collisionClass == "enemyProjectile") {
+  //   PLAYER.take_damage(event.body.userData.damage || event.target.userData.damage);
+  // }
 }
 
 let playerGeometry = new THREE.BoxGeometry(2,4,2);
@@ -127,15 +127,6 @@ let onKeyDown = (event) => {
     case "r":
       reload(PLAYER);
       break
-    case "i":
-      toggle_inventory();
-      break
-    case "1":
-      swap_weapons();
-      break
-    case "2":
-      swap_weapons();
-      break
     case " ":
       jump();
       break
@@ -144,10 +135,6 @@ let onKeyDown = (event) => {
       break
     case "k":
       clearEnemies();
-      break
-    case "l":
-      PLAYER.take_damage(75);
-      updateHP(PLAYER);
       break
     case "p":
       printPlayerPosition();
@@ -183,7 +170,7 @@ window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
 
 let playerInputs = () => {
-  if(!isInventoryOpen && !isAlreadyDead) {
+  if(!isAlreadyDead) {
     let velocity = new THREE.Vector3();
     let direction = new THREE.Vector3();
     direction.set(0, 0, 0);
@@ -197,8 +184,18 @@ let playerInputs = () => {
     const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
     velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
     let c_velocity = new CANNON.Vec3().copy(velocity);
-    PLAYER.move_player(c_velocity)
+    PLAYER.move_player(c_velocity);
   }
+
+  if(!isAlreadyDead) {
+    if(mouse[2] == true && PLAYER.time_since_last_dodge + PLAYER.dodge_cooldown < Date.now()) {
+      if(keys.W || keys.A || keys.S || keys.D) {
+        // default dodge forward
+      }
+      PLAYER.dodge();
+    }
+  }
+
 }
 
 // MOUSE/CAMERA CONTROLS
@@ -221,6 +218,9 @@ document.addEventListener('mousemove', (event) => {
 });
 
 
+
+
+
 let updateGame = () => {
     playerMesh.position.copy(PLAYER.body.position);
     playerMesh.quaternion.copy(PLAYER.body.quaternion);
@@ -228,10 +228,10 @@ let updateGame = () => {
     camera.position.copy(PLAYER.body.position);
     camera.position.y += worldBuildMode==true ? 42.5 : 2.5;
   
-    // let playerGravity = new CANNON.Vec3(0, -500, 0);
-    // let gravityForce = new CANNON.Vec3();
-    // PLAYER.body.vectorToWorldFrame(playerGravity, gravityForce);
-    // PLAYER.body.applyForce(gravityForce, PLAYER.body.position);
+    let playerGravity = new CANNON.Vec3(0, -500, 0);
+    let gravityForce = new CANNON.Vec3();
+    PLAYER.body.vectorToWorldFrame(playerGravity, gravityForce);
+    PLAYER.body.applyForce(gravityForce, PLAYER.body.position);
 }
 
 let removeBodies = (body, i) => {
@@ -255,12 +255,138 @@ let printPlayerPosition = () => {
     console.log(`z: ${PLAYER.body.position.z}`);
     console.log("-- -- -- -- -- -- --\n");
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ____________________________________________________________________________________________________________________
 // Everything above is the bare minimum for getting a 1x2x1 player with first person camera + mouse and keyboard inputs
 // below is dedicated to a new game
 // ====================================================================================================================
 
 //  i#1 : dodge v parry v shoot
+//      mid round bonus - winner gets first pick of 3 options
+//      parry refelcts projectile 
+//      perfect parry reflects projectile and adds damage and cannot be reflected except by perfect parry
+//      dodge gives i-frames will dodge all parry projectiles
+//      shoot fires a projectile from a small mag weapon - reloads will be often
+//      
+//      adjust keyboard and mouse inputs to allow for multiple inputs and reflect the actions available
+//      1 weapon class that allows for upgrades/mods
+//      make auto reflect ai
+//      add menu ui that allows for options and matchmaking
+
+//      bonus ideas: 
+//            perfect parry turns dodge into damaging dash
+//            +1 mag size - less reloading
+//
+
+
+// left click    : 0
+// wheel         : 1
+// right click   : 2
+// back thumb    : 3
+// front thumb   : 4
+// new mouse handler
+let mouse = {
+  0: false,
+  1: false,
+  2: false,
+  3: false,
+  4: false
+};
+window.addEventListener("mousedown", (event) => {
+  mouse[event.button] = true; 
+})
+
+window.addEventListener("mouseup", (event) => {
+  mouse[event.button] = false; 
+})
+
+
+
+
+
+
+
+let floorShape = new CANNON.Plane();
+let floor = new CANNON.Body({ shape: floorShape, mass: 0, collisionFilterGroup: 1, collisionFilterMask: -1 });
+let floorBodyMaterial = new CANNON.Material("floorBodyMaterial");
+floorBodyMaterial.friction = 0.4;
+floorBodyMaterial.restitution = 0;
+floor.material = floorBodyMaterial;
+floor.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2)
+floor.position.set(0,0,0);
+console.log(floor.quaternion)
+world.addBody(floor);
+
+const floorGeometry = new THREE.BoxGeometry(1000,1000,0,100,100);
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: true });
+const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+floorMesh.quaternion.copy(floor.quaternion);
+floorMesh.position.copy(floor.position);
+scene.add(floorMesh);
+
+
+
+let dodge = () => {
+  console.log(keys)
+}
+
+let jump = () => {
+  if(true) {
+    // isJumping = true;
+    // jumpStartTime = Date.now();
+    PLAYER.body.velocity.y = (10 * PLAYER.jump_multiplier);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

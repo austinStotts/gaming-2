@@ -10,7 +10,7 @@ export default class Player {
         this.maxHP = 100;
         this.hp = this.maxHP;
         this.armor = undefined;
-        this.speed = 60;
+        this.speed = 100;
         this.acc = 0.25;
         this.dec = 0.2;
         this.groundHeight = 0.25;
@@ -20,12 +20,19 @@ export default class Player {
         this.dmg_multiplier = 1;
         this.speed_multiplier = 1;
         this.jump_multiplier = 1;
+
+        this.dodge_distance = 2;
+        this.dodge_cooldown = 1000;
+        this.time_since_last_dodge = Date.now();
+
+        this.move_player = this.move_player.bind(this);
     }
 
 
 
-    change_weapon (weapon) {
-        this.weapon = weapon;
+    dodge (direction) {
+        console.log("dodge!");
+        this.time_since_last_dodge = Date.now()
     }
 
     set_body (body) {
@@ -33,8 +40,11 @@ export default class Player {
     }
 
     move_player (velocity) {
+        let test = new CANNON.Vec3();
+        // test.vsub()
         let captureY = this.body.velocity.y;
-        velocity.dot(this.speed, this.body.velocity);
+        // velocity.vsub(this.speed);
+        this.body.velocity.set((velocity.x*this.speed),(velocity.y*this.speed),(velocity.z*this.speed))
         this.body.velocity.y = captureY;
     }
 
