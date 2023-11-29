@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import * as CANNON from "cannon-es";
 import Player from './player.js';
+import { acceleratedRaycast } from 'three-mesh-bvh'
 
 
 
@@ -268,7 +269,7 @@ let printPlayerPosition = () => {
 
 
 
-
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 
 // ____________________________________________________________________________________________________________________
@@ -335,7 +336,7 @@ let handleMouseDown = (button) => {
         velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
         // PLAYER.dodge(velocity);
         console.log(PLAYER.body.position)
-        checkForWall(PLAYER.body.position, velocity, 200);
+        checkForWall(PLAYER.body.position, velocity.normalize(), 10);
         PLAYER.time_since_last_dodge = Date.now();
       } else {
         // default forward
@@ -347,7 +348,7 @@ let handleMouseDown = (button) => {
         direction.normalize();
         const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
         velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
-        checkForWall(PLAYER.body.position, velocity, 200);
+        checkForWall(PLAYER.body.position, velocity.normalize(), 10);
         PLAYER.time_since_last_dodge = Date.now();
         // PLAYER.dodge(velocity);
       }
@@ -357,6 +358,7 @@ let handleMouseDown = (button) => {
 }
 
 let checkForWall = (start, direction, length) => {
+  // console.log(scene.children)
 
   var rayGeometry = new THREE.BufferGeometry().setFromPoints([
     new THREE.Vector3(start.x, start.y, start.z),
@@ -371,9 +373,10 @@ let checkForWall = (start, direction, length) => {
   
   let raycast = new THREE.Raycaster(start, direction, 0, length);
   let intersections = raycast.intersectObjects(scene.children);
-  // if(intersections.length > 0) {
-    intersections.forEach(child => (console.log(child.object.userData.cc)))
-  // }
+  // console.log(intersections)
+  if(intersections.length > 0) {
+    intersections.forEach(child => { if(child.object.type == "Mesh") { console.log("mesh hit") }})
+  }
   
 }
 
@@ -390,7 +393,7 @@ floorBodyMaterial.restitution = 0;
 floor.material = floorBodyMaterial;
 floor.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2)
 floor.position.set(0,0,0);
-console.log(floor.quaternion)
+
 world.addBody(floor);
 
 const floorGeometry = new THREE.BoxGeometry(1000,1000,0,100,100);
@@ -398,6 +401,7 @@ const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: 
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
 floorMesh.quaternion.copy(floor.quaternion);
 floorMesh.position.copy(floor.position);
+floorMesh.userData.cc = "floor"
 scene.add(floorMesh);
 
 
