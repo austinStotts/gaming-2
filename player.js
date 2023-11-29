@@ -21,7 +21,7 @@ export default class Player {
         this.speed_multiplier = 1;
         this.jump_multiplier = 1;
 
-        this.dodge_distance = 2;
+        this.dodge_distance = 10;
         this.dodge_cooldown = 1000;
         this.time_since_last_dodge = Date.now();
 
@@ -30,9 +30,15 @@ export default class Player {
 
 
 
-    dodge (direction) {
+    dodge (direction, distance) {
+        console.log(direction, distance)
+     
         console.log("dodge!");
+        let test = new CANNON.Body();
+    
+        this.body.position.addScaledVector(distance, direction, this.body.position);
         this.time_since_last_dodge = Date.now()
+
     }
 
     set_body (body) {

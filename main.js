@@ -335,9 +335,8 @@ let handleMouseDown = (button) => {
         const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
         velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
         // PLAYER.dodge(velocity);
-        console.log(PLAYER.body.position)
-        checkForWall(PLAYER.body.position, velocity.normalize(), 10);
-        PLAYER.time_since_last_dodge = Date.now();
+        // console.log(PLAYER.body.position)
+        PLAYER.dodge(velocity, checkForWall(PLAYER.body.position, velocity.normalize(), PLAYER.dodge_distance))
       } else {
         // default forward
         // get direction
@@ -348,8 +347,8 @@ let handleMouseDown = (button) => {
         direction.normalize();
         const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
         velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
-        checkForWall(PLAYER.body.position, velocity.normalize(), 10);
-        PLAYER.time_since_last_dodge = Date.now();
+        PLAYER.dodge(velocity, checkForWall(PLAYER.body.position, velocity.normalize(), PLAYER.dodge_distance))
+        // PLAYER.time_since_last_dodge = Date.now();
         // PLAYER.dodge(velocity);
       }
       
@@ -373,10 +372,21 @@ let checkForWall = (start, direction, length) => {
   
   let raycast = new THREE.Raycaster(start, direction, 0, length);
   let intersections = raycast.intersectObjects(scene.children);
-  // console.log(intersections)
   if(intersections.length > 0) {
-    intersections.forEach(child => { if(child.object.type == "Mesh") { console.log("mesh hit") }})
+    for(let i = 0; i < intersections.length; i++) {
+      if(intersections[i].object.type == "Mesh") {
+        console.log("mesh hit", intersections[0].distance);
+        return intersections[0].distance-1
+      }
+    }
+    // intersections.forEach(child => {
+    //   if(child.object.type == "Mesh") {
+    //     console.log("mesh hit", child.distance);
+    //     return child.distance-1
+    //   }
+    // })
   }
+  return PLAYER.dodge_distance
   
 }
 
@@ -410,7 +420,12 @@ let wallMat = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
 let wall = new THREE.Mesh(wallGeo, wallMat);
 wall.position.set(0, 5, -15);
 wall.userData.cc = "wall"
-scene.add(wall)
+scene.add(wall);
+
+let wallShape = new CANNON.Box(new CANNON.Vec3(5,5,0.5));
+let wallBody = new CANNON.Body({ shape: wallShape, mass: 0 });
+wallBody.position.copy(wall.position);
+world.addBody(wallBody)
 
 
 let dodge = () => {
