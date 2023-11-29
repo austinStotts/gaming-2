@@ -91,6 +91,7 @@ let playerCollision = (event) => {
 let playerGeometry = new THREE.BoxGeometry(2,4,2);
 let playerMaterial = new THREE.MeshBasicMaterial({ color: 0xFE90C9, wireframe: true })
 let playerMesh = new THREE.Mesh(playerGeometry,playerMaterial);
+playerMesh.userData.cc = "player"
 scene.add(playerMesh);
 
 create_player_body(PLAYER);
@@ -166,11 +167,7 @@ let onKeyUp = (event) => {
   }
 }
 
-let checkForWall = (start, direction, length) => {
-  let raycast = new THREE.Raycaster(start, direction, 0.1, length);
-  let intersections = raycast.intersectObjects(scene.children);
-  console.log(intersections)
-}
+
 
 
 
@@ -195,40 +192,7 @@ let playerInputs = () => {
     PLAYER.move_player(c_velocity);
   }
 
-  if(!isAlreadyDead) {
-    if(mouse[2] == true && PLAYER.time_since_last_dodge + PLAYER.dodge_cooldown < Date.now()) {
-      if(keys.W || keys.A || keys.S || keys.D) {
-        // get direction
 
-        let velocity = new THREE.Vector3();
-        let direction = new THREE.Vector3();
-        direction.set(0, 0, 0);
-
-        if (keys.W) direction.z -= 1;
-        if (keys.A) direction.x -= 1;
-        if (keys.S) direction.z += 1;
-        if (keys.D) direction.x += 1;
-
-        direction.normalize();
-        const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
-        velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
-        // PLAYER.dodge(velocity);
-        checkForWall(PLAYER.body.position, velocity, 100)
-      } else {
-        // default forward
-        // get direction
-        let velocity = new THREE.Vector3();
-        let direction = new THREE.Vector3();
-        direction.set(0, 0, 1);
-
-        direction.normalize();
-        const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
-        velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
-        PLAYER.dodge(velocity);
-      }
-      
-    }
-  }
 
 }
 
@@ -344,13 +308,74 @@ let mouse = {
   4: false
 };
 window.addEventListener("mousedown", (event) => {
-  mouse[event.button] = true; 
+  handleMouseDown(event.button);
 })
 
-window.addEventListener("mouseup", (event) => {
-  mouse[event.button] = false; 
-})
+// window.addEventListener("mouseup", (event) => {
+//   mouse[event.button] = false; 
+// })
 
+let handleMouseDown = (button) => {
+  if(!isAlreadyDead) {
+    if(button == 2 && PLAYER.time_since_last_dodge + PLAYER.dodge_cooldown < Date.now()) {
+      if(keys.W || keys.A || keys.S || keys.D) {
+        // get direction
+
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        direction.set(0, 0, 0);
+
+        if (keys.W) direction.z -= 1;
+        if (keys.A) direction.x -= 1;
+        if (keys.S) direction.z += 1;
+        if (keys.D) direction.x += 1;
+
+        direction.normalize();
+        const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
+        velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
+        // PLAYER.dodge(velocity);
+        console.log(PLAYER.body.position)
+        checkForWall(PLAYER.body.position, velocity, 200);
+        PLAYER.time_since_last_dodge = Date.now();
+      } else {
+        // default forward
+        // get direction
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        direction.set(0, 0, -1);
+
+        direction.normalize();
+        const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
+        velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
+        checkForWall(PLAYER.body.position, velocity, 200);
+        PLAYER.time_since_last_dodge = Date.now();
+        // PLAYER.dodge(velocity);
+      }
+      
+    }
+  }
+}
+
+let checkForWall = (start, direction, length) => {
+
+  var rayGeometry = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(start.x, start.y, start.z),
+    new THREE.Vector3((start.x + (direction.x*length)), start.y, (start.z + (direction.z * length)))
+  ]);
+  var rayMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+  var rayVisual = new THREE.Line(rayGeometry, rayMaterial);
+  scene.add(rayVisual);
+  setTimeout(() => {scene.remove(rayVisual)}, 50)
+
+
+  
+  let raycast = new THREE.Raycaster(start, direction, 0, length);
+  let intersections = raycast.intersectObjects(scene.children);
+  // if(intersections.length > 0) {
+    intersections.forEach(child => (console.log(child.object.userData.cc)))
+  // }
+  
+}
 
 
 
@@ -375,6 +400,13 @@ floorMesh.quaternion.copy(floor.quaternion);
 floorMesh.position.copy(floor.position);
 scene.add(floorMesh);
 
+
+let wallGeo = new THREE.BoxGeometry(10,10,1);
+let wallMat = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
+let wall = new THREE.Mesh(wallGeo, wallMat);
+wall.position.set(0, 5, -15);
+wall.userData.cc = "wall"
+scene.add(wall)
 
 
 let dodge = () => {
