@@ -22,7 +22,7 @@ export default class Player {
         this.jump_multiplier = 1;
 
         this.dodge_distance = 10;
-        this.dodge_cooldown = 100;
+        this.dodge_cooldown = 100; // 1000
         this.time_since_last_dodge = Date.now();
 
         this.move_player = this.move_player.bind(this);

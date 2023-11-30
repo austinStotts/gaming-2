@@ -64,20 +64,20 @@ solver.tolerance = 0.1;
 world.solver = new CANNON.SplitSolver(solver);
 world.solver.iterations = 7;
 // PLAYER
+let l = [0,3,0]; // PLAYER SPAWN LOCATION
 let create_player_body = (player) => {
   let shape = new CANNON.Box(new CANNON.Vec3(1,2,1));
+  let playerBody = new CANNON.Body({ shape: shape, mass: 50, fixedRotation: true, linearDamping: 0.99 });
   let playerMaterial = new CANNON.Material("playerMaterial");
   playerMaterial.friction = 0.0;
   playerMaterial.restitution = 0;
-  let playerBody = new CANNON.Body({ shape: shape, mass: 50, fixedRotation: true, linearDamping: 0.99 });
   playerBody.material = playerMaterial;
-  let l = [0,3,0];
   playerBody.position.set(l[0],l[1],l[2]);
   playerBody.collisionFilterGroup = 1;
   playerBody.collisionFilterMask = 1;
-  playerBody.userData = {collisionClass: "player", id: `${player.id}`}
+  playerBody.userData = {cc: "player", id: `${player.id}`}
   // playerBody.addEventListener("collide", playerCollision)
-  player.set_body(playerBody)
+  player.set_body(playerBody);
   world.addBody(playerBody);
 }
 
@@ -268,7 +268,6 @@ let printPlayerPosition = () => {
 
 
 
-
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 
@@ -428,10 +427,6 @@ wallBody.position.copy(wall.position);
 world.addBody(wallBody)
 
 
-let dodge = () => {
-  console.log(keys)
-}
-
 let jump = () => {
   if(true) {
     // isJumping = true;
@@ -442,6 +437,61 @@ let jump = () => {
 
 
 
+let projectiles = [];
+
+class TrainingBot {
+  constructor(mesh, body) {
+    this.mesh = mesh;
+    this.body = body;
+    this.fr = 2000;
+    this.damage = 10;
+    this.speed = 100;
+
+    setInterval(() => {
+      this.shootProjectile();
+    }, this.fr)
+  }
+
+  shootProjectile () {
+    console.log("FIRE!!")
+    let pGeo = new THREE.SphereGeometry(0.5);
+    let pMat = new THREE.MeshBasicMaterial({ color: 0xFF00FF });
+    let pMesh = new THREE.Mesh(pGeo, pMat);
+
+    let pShape = new CANNON.Sphere(1);
+    let pBody = new CANNON.Body({ shape: pShape, mass: 5, linearDamping: 0.2 });
+    pBody.position.set(this.body.position.x, this.body.position.y+4, this.body.position.z)
+    world.addBody(pBody);
+    pMesh.position.copy(pBody.position);
+    scene.add(pMesh);
+    projectiles.push({mesh: pMesh, body: pBody, createdAt: Date.now(), deleteAfter: 3000});
+    
+    let direction = new CANNON.Vec3();
+    let target = new CANNON.Vec3(camera.position.x, camera.position.y, camera.position.z)
+    target.vsub(pBody.position, direction);
+    direction.normalize();
+    let initialVelocity = new CANNON.Vec3();
+    direction.scale(this.speed, initialVelocity);
+    
+    // Set the initial velocity to the projectile's body
+    pBody.velocity.copy(initialVelocity);
+  }
+}
+
+
+let botGeo = new THREE.BoxGeometry(2,4,2);
+let botMat = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
+let botMesh = new THREE.Mesh(botGeo, botMat);
+
+let botShape = new CANNON.Box(new CANNON.Vec3(1,2,1));
+let botBody = new CANNON.Body({ shape:botShape, mass: 0, });
+
+botBody.position.set(20,2,20);
+botMesh.position.copy(botBody.position);
+scene.add(botMesh);
+world.addBody(botBody);
+
+let bot = new TrainingBot(botMesh, botBody);
 
 
 
@@ -471,11 +521,21 @@ let jump = () => {
 
 
 
-
-
-
-
-
+let updateProjectiles = () => {
+  if(projectiles.length > 0) {
+    for(let i = 0; i < projectiles.length; i++) {
+      projectiles[i].mesh.position.copy(projectiles[i].body.position);
+      // console.log(projectiles[0].body.position)
+      if(projectiles[i].createdAt + projectiles[i].deleteAfter < Date.now()) {
+        scene.remove(projectiles[i].mesh);
+        world.removeBody(projectiles[i].body);
+        projectiles.splice(i, 1);
+        i--;
+      }
+      
+    }
+  }
+}
 
 
 
@@ -489,7 +549,7 @@ const animate = () => {
   
     playerInputs();
     updateGame();
-
+    updateProjectiles();
   
     bodiesToRemove.forEach(removeBodies);
     meshToRemove.forEach(removeMesh);
