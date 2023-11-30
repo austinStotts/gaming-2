@@ -434,11 +434,11 @@ let jump = () => {
   if(true) {
     // isJumping = true;
     // jumpStartTime = Date.now();
-    PLAYER.body.velocity.y = (20 * PLAYER.jump_multiplier);
+    PLAYER.body.velocity.y = (30 * PLAYER.jump_multiplier);
   }
 }
 
-
+ 
 
 let projectiles = [];
 

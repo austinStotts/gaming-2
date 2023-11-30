@@ -10,7 +10,7 @@ export default class Player {
         this.maxHP = 100;
         this.hp = this.maxHP;
         this.armor = undefined;
-        this.speed = 5;
+        this.speed = 3;
         this.acc = 0.5;
         this.dec = 0.2;
         this.groundHeight = 0.25;
@@ -22,7 +22,7 @@ export default class Player {
         this.jump_multiplier = 1;
 
         this.dodge_distance = 10;
-        this.dodge_cooldown = 100; // 1000
+        this.dodge_cooldown = 400; // 1000
         this.time_since_last_dodge = 0;
 
         this.parry_cooldown = 1000
@@ -43,7 +43,7 @@ export default class Player {
         console.log("\ndash type Player dodge: \n", "x",direction.x, "y",direction.y, "z",direction.z);
         this.body.velocity.addScaledVector(100, direction, this.body.velocity);
         this.time_since_last_dodge = Date.now();
-        console.log(this.body)
+        // console.log(this.body);
     }
 
     set_body (body) {
@@ -51,7 +51,7 @@ export default class Player {
     }
 
     move_player (velocity) {
-        let test = new CANNON.Vec3();
+        // let test = new CANNON.Vec3();
         // test.vsub()
         let captureY = this.body.velocity.y;
         // velocity.vsub(this.speed);
