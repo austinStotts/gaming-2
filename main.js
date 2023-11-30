@@ -69,7 +69,7 @@ let create_player_body = (player) => {
   let playerMaterial = new CANNON.Material("playerMaterial");
   playerMaterial.friction = 0.0;
   playerMaterial.restitution = 0;
-  let playerBody = new CANNON.Body({ shape: shape, mass: 500, fixedRotation: true });
+  let playerBody = new CANNON.Body({ shape: shape, mass: 50, fixedRotation: true, linearDamping: 0.99 });
   playerBody.material = playerMaterial;
   let l = [0,3,0];
   playerBody.position.set(l[0],l[1],l[2]);
@@ -436,7 +436,7 @@ let jump = () => {
   if(true) {
     // isJumping = true;
     // jumpStartTime = Date.now();
-    PLAYER.body.velocity.y = (10 * PLAYER.jump_multiplier);
+    PLAYER.body.velocity.y = (20 * PLAYER.jump_multiplier);
   }
 }
 
