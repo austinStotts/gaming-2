@@ -113,6 +113,7 @@ document.addEventListener('keyup', (event) => {
 
 let keys = {};
 let onKeyDown = (event) => {
+  // console.log(event.key)
   switch (event.key) {
     case "w":
       keys.W = true;
@@ -147,7 +148,9 @@ let onKeyDown = (event) => {
     case "j":
       toggleBuildMode();
       break
-
+    case "e":
+      parry();
+      break
   }
 }
 
@@ -513,7 +516,29 @@ let bot = new TrainingBot(botMesh, botBody);
 
 
 
+let parry = () => {
+  // console.log("PARRY!")
+  if(PLAYER.time_since_last_parry + PLAYER.parry_cooldown < Date.now()) {
+    PLAYER.time_since_last_parry = Date.now();
+    for(let i = 0; i < projectiles.length; i++) {
+      let direction = new THREE.Vector3();
+      direction.subVectors(projectiles[i].mesh.position, PLAYER.body.position).normalize();
+      let ray = new THREE.Raycaster(PLAYER.body.position, direction, 0, 20);
+      let intersections = ray.intersectObject(projectiles[i].mesh);
+      if(intersections.length > 0) {
+        if(intersections[0].distance < 3) {
+          console.log('PERFECT PARRY');
+        } else if(intersections[0].distance < 5) {
+          console.log("PARRY");
+        } else {
+          console.log('MISS!');
+        }
+        console.log(intersections[0].distance)
+      }
+    }
+  }
 
+}
 
 
 
