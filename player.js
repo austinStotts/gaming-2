@@ -10,7 +10,7 @@ export default class Player {
         this.maxHP = 100;
         this.hp = this.maxHP;
         this.armor = undefined;
-        this.speed = 3;
+        this.speed = 5;
         this.acc = 0.5;
         this.dec = 0.2;
         this.groundHeight = 0.25;
@@ -25,8 +25,11 @@ export default class Player {
         this.dodge_cooldown = 400; // 1000
         this.time_since_last_dodge = 0;
 
-        this.parry_cooldown = 1000
+        this.parry_cooldown = 1000;
         this.time_since_last_parry = 0;
+        this.parry_window = 300;
+        this.perfect_parry_window = 100;
+
 
         this.move_player = this.move_player.bind(this);
     }

@@ -76,17 +76,26 @@ let create_player_body = (player) => {
   playerBody.collisionFilterGroup = 1;
   playerBody.collisionFilterMask = 1;
   playerBody.userData = {cc: "player", id: `${player.id}`}
-  // playerBody.addEventListener("collide", playerCollision)
+  playerBody.addEventListener("collide", playerCollision);
   player.set_body(playerBody);
   world.addBody(playerBody);
 }
 
-
 let playerCollision = (event) => {
-  // if(event.body.userData.collisionClass == "floor") { isJumping=false }
-  // else if(event.body.userData.collisionClass == "enemyProjectile" || event.target.userData.collisionClass == "enemyProjectile") {
-  //   PLAYER.take_damage(event.body.userData.damage || event.target.userData.damage);
-  // }
+  if(event.body.userData.cc == "enemyProjectile") { 
+    if(PLAYER.time_since_last_parry + PLAYER.perfect_parry_window > Date.now()) {
+      console.log("perfect!");
+      // reflect projectile / must be perfect parry to reflect again
+      reflectProjectile(event.body, true);
+    } else if(PLAYER.time_since_last_parry + PLAYER.parry_window > Date.now()) {
+      console.log("parry!");
+      // reflect projectile
+      reflectProjectile(event.body, false);
+    } else {
+      console.log('player hit!');
+      // take damage / delete projectile
+    }
+  }
 }
 
 let playerGeometry = new THREE.BoxGeometry(2,4,2);
@@ -413,7 +422,8 @@ const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: 
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
 floorMesh.quaternion.copy(floor.quaternion);
 floorMesh.position.copy(floor.position);
-floorMesh.userData.cc = "floor"
+floorMesh.userData.cc = "floor";
+floor.userData = {mesh: floorMesh, cc: "floor"}
 scene.add(floorMesh);
 
 
@@ -439,7 +449,7 @@ let jump = () => {
 }
 
  
-
+let parryLevel = [0x2196F3,0x009688,0x8BC34A,0xFFEB3B,0xFF5722,0xEB144C]
 let projectiles = [];
 
 class TrainingBot {
@@ -458,16 +468,17 @@ class TrainingBot {
   shootProjectile () {
     console.log("FIRE!!")
     let pGeo = new THREE.SphereGeometry(0.5);
-    let pMat = new THREE.MeshBasicMaterial({ color: 0xFF00FF });
+    let pMat = new THREE.MeshBasicMaterial({ color: 0x2196F3 });
     let pMesh = new THREE.Mesh(pGeo, pMat);
+    pMesh.userData.parryLevel = 0;
 
     let pShape = new CANNON.Sphere(1);
     let pBody = new CANNON.Body({ shape: pShape, mass: 5, linearDamping: 0.2 });
-    pBody.position.set(this.body.position.x, this.body.position.y+4, this.body.position.z)
+    pBody.position.set(this.body.position.x, this.body.position.y+4, this.body.position.z);
     world.addBody(pBody);
     pMesh.position.copy(pBody.position);
     scene.add(pMesh);
-    projectiles.push({mesh: pMesh, body: pBody, createdAt: Date.now(), deleteAfter: 3000});
+    projectiles.push({mesh: pMesh, body: pBody, deleteAfter: 3000});
     
     let direction = new CANNON.Vec3();
     let target = new CANNON.Vec3(camera.position.x, camera.position.y, camera.position.z)
@@ -477,6 +488,7 @@ class TrainingBot {
     direction.scale(this.speed, initialVelocity);
     
     // Set the initial velocity to the projectile's body
+    pBody.userData = { mesh: pMesh, cc: "enemyProjectile", createdAt: Date.now() }
     pBody.velocity.copy(initialVelocity);
   }
 }
@@ -502,43 +514,71 @@ let bot = new TrainingBot(botMesh, botBody);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 let parry = () => {
   // console.log("PARRY!")
   if(PLAYER.time_since_last_parry + PLAYER.parry_cooldown < Date.now()) {
     PLAYER.time_since_last_parry = Date.now();
-    for(let i = 0; i < projectiles.length; i++) {
-      let direction = new THREE.Vector3();
-      direction.subVectors(projectiles[i].mesh.position, PLAYER.body.position).normalize();
-      let ray = new THREE.Raycaster(PLAYER.body.position, direction, 0, 20);
-      let intersections = ray.intersectObject(projectiles[i].mesh);
-      if(intersections.length > 0) {
-        if(intersections[0].distance < 3) {
-          console.log('PERFECT PARRY');
-        } else if(intersections[0].distance < 5) {
-          console.log("PARRY");
-        } else {
-          console.log('MISS!');
-        }
-        console.log(intersections[0].distance)
-      }
-    }
+
   }
 
 }
+
+let reflectProjectile = (projectile, perfect=false) => {
+  if(perfect) {
+    PLAYER.time_since_last_parry = 0;
+    projectile.userData.createdAt = Date.now();
+    let direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+    projectile.position.copy(camera.position);
+    projectile.velocity.set(direction.x *100, direction.y, direction.z *100);
+    projectile.userData.mesh.userData.parryLevel += 1;
+    projectile.userData.mesh.material.color.setHex(parryLevel[projectile.userData.mesh.userData.parryLevel]);
+  } else {
+    PLAYER.time_since_last_parry = 0;
+    projectile.userData.createdAt = Date.now();
+    let direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+    projectile.position.copy(camera.position);
+    projectile.velocity.set(direction.x *75, direction.y, direction.z *75);
+    // projectile.userData.mesh.userData.parryLevel += 1;
+    // projectile.userData.mesh.material.color.setHex(parryLevel[projectile.userData.mesh.userData.parryLevel]);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// let parry = () => {
+//   // console.log("PARRY!")
+//   if(PLAYER.time_since_last_parry + PLAYER.parry_cooldown < Date.now()) {
+//     PLAYER.time_since_last_parry = Date.now();
+//     for(let i = 0; i < projectiles.length; i++) {
+//       let direction = new THREE.Vector3();
+//       direction.subVectors(projectiles[i].mesh.position, PLAYER.body.position).normalize();
+//       let ray = new THREE.Raycaster(PLAYER.body.position, direction, 0, 20);
+//       let intersections = ray.intersectObject(projectiles[i].mesh);
+//       if(intersections.length > 0) {
+//         if(intersections[0].distance < 3) {
+//           console.log('PERFECT PARRY');
+//         } else if(intersections[0].distance < 5) {
+//           console.log("PARRY");
+//         } else {
+//           console.log('MISS!');
+//         }
+//         console.log(intersections[0].distance)
+//       }
+//     }
+//   }
+
+// }
 
 
 
@@ -551,7 +591,7 @@ let updateProjectiles = () => {
     for(let i = 0; i < projectiles.length; i++) {
       projectiles[i].mesh.position.copy(projectiles[i].body.position);
       // console.log(projectiles[0].body.position)
-      if(projectiles[i].createdAt + projectiles[i].deleteAfter < Date.now()) {
+      if(projectiles[i].body.userData.createdAt + projectiles[i].deleteAfter < Date.now()) {
         scene.remove(projectiles[i].mesh);
         world.removeBody(projectiles[i].body);
         projectiles.splice(i, 1);
