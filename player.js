@@ -23,7 +23,7 @@ export default class Player {
 
         this.dodge_distance = 10;
         this.dodge_cooldown = 400; // 1000
-        this.time_since_last_dodge = 0;
+        this.time_since_last_dodge = Date.now();
 
         this.parry_cooldown = 1000;
         this.time_since_last_parry = 0;

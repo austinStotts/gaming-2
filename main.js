@@ -2,6 +2,7 @@
 
 import * as THREE from 'three';
 import * as CANNON from "cannon-es";
+import 'js-circle-progress';
 import Player from './player.js';
 import { acceleratedRaycast } from 'three-mesh-bvh'
 
@@ -436,6 +437,7 @@ scene.add(wall);
 
 let wallShape = new CANNON.Box(new CANNON.Vec3(5,5,0.5));
 let wallBody = new CANNON.Body({ shape: wallShape, mass: 0 });
+wallBody.userData = { cc: "wall" }
 wallBody.position.copy(wall.position);
 world.addBody(wallBody)
 
@@ -500,6 +502,7 @@ let botMesh = new THREE.Mesh(botGeo, botMat);
 
 let botShape = new CANNON.Box(new CANNON.Vec3(1,2,1));
 let botBody = new CANNON.Body({ shape:botShape, mass: 0, });
+botBody.userData = { cc: "enemy" }
 
 botBody.position.set(20,2,20);
 botMesh.position.copy(botBody.position);
@@ -580,9 +583,21 @@ let reflectProjectile = (projectile, perfect=false) => {
 
 // }
 
+let dcw = document.getElementById("dodge-cooldown-wrapper");
+const dodge_cooldown = document.createElement('circle-progress');
+dodge_cooldown.classList.add("dodge-circle")
+dodge_cooldown.max = 100;
+dodge_cooldown.value = 0;
+dodge_cooldown.textFormat = () => "dodge";
+dcw.appendChild(dodge_cooldown);
 
 
-
+// update cooldowns
+setInterval(() => {
+  let value = ((Date.now() - PLAYER.time_since_last_dodge) / PLAYER.dodge_cooldown) * 100;
+  dodge_cooldown.value = value ;
+  
+}, 50)
 
 
 
@@ -611,10 +626,11 @@ const animate = () => {
 
     let rate = 1/60;
     world.step(rate, rate, 10);
-  
+    // updateCooldowns();
     playerInputs();
     updateGame();
     updateProjectiles();
+    
   
     bodiesToRemove.forEach(removeBodies);
     meshToRemove.forEach(removeMesh);
