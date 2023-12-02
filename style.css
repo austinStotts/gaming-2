@@ -3,17 +3,28 @@
     right: 200px;
     bottom: 50px;
     z-index: 110;
+    display: block;
 }
 
 .cooldown-label {
-    z-index: 120;
+    z-index: 200;
     position: relative;
-    top: 30px;
-    left: 6px;
-    color: red;
-    font-family: monospace;
-    font-size: 13px;
+    top: -2px;
+    color: white;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
+    font-weight: 700;
     font-style: italic;
+}
+
+.dodge-cooldown-wrapper {
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    margin: 0px 5px;
+    /* background-color: rgb(255, 225, 225); */
+    border-radius: 50%;
 }
 
 .dodge-circle {
@@ -22,6 +33,63 @@
 }
 
 .dodge-circle::part(base) {
-    width: 50px;
+    width: 100px;
     height: auto;
+    background-color: rgb(0, 0, 0);
+    border-radius: 50%;
+}
+
+.dodge-circle::part(text) {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 26px;
+    stroke: dodgerblue;
+}
+
+.parry-cooldown-wrapper {
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    margin: 0px 5px;
+    /* background-color: white; */
+    border-radius: 50%;
+}
+
+.parry-circle {
+    z-index: 110;
+    width: 25px;
+}
+
+.parry-circle::part(base) {
+    width: 100px;
+    height: auto;
+    background-color: rgb(0, 0, 0);
+    border-radius: 50%;
+}
+
+.parry-circle::part(text) {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 26px;
+    stroke: dodgerblue;
+}
+
+
+
+
+
+
+
+
+.crosshair-wrapper {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 100;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    border: 2px solid white;
+    width: 10px;
+    height: 10px;
+    /* filter: invert(1); */
+    /* mix-blend-mode: difference; */
+    border-radius: 5px;
 }

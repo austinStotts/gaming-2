@@ -53,7 +53,7 @@ world.quatNormalizeSkip = 0;
 world.quatNormalizeFast = false;
 world.defaultContactMaterial.contactEquationStiffness = 1e9;
 world.defaultContactMaterial.contactEquationRelaxation = 4;
-world.gravity.set(0,-25,0);
+world.gravity.set(0,-15,0);
 world.broadphase = new CANNON.NaiveBroadphase();
 // let phyMaterial = new CANNON.Material("slipperyMaterial");
 // let phyContactMaterial = new CANNON.ContactMaterial(phyMaterial, phyMaterial, {friction: 0.0, restitution: 0.3});
@@ -70,7 +70,7 @@ let create_player_body = (player) => {
   let shape = new CANNON.Box(new CANNON.Vec3(1,2,1));
   let playerBody = new CANNON.Body({ shape: shape, mass: 50, fixedRotation: true, linearDamping: 0.99 });
   let playerMaterial = new CANNON.Material("playerMaterial");
-  playerMaterial.friction = 0.0;
+  playerMaterial.friction = 0.05;
   playerMaterial.restitution = 0;
   playerBody.material = playerMaterial;
   playerBody.position.set(l[0],l[1],l[2]);
@@ -96,6 +96,8 @@ let playerCollision = (event) => {
       console.log('player hit!');
       // take damage / delete projectile
     }
+  } else if(event.body.userData.cc == "floor") {
+    isJumping = false;
   }
 }
 
@@ -201,7 +203,7 @@ let playerInputs = () => {
 
     direction.normalize();
     const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
-    velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
+    velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.speed);
     let c_velocity = new CANNON.Vec3().copy(velocity);
     PLAYER.move_player(c_velocity);
   }
@@ -410,8 +412,8 @@ let checkForWall = (start, direction, length) => {
 let floorShape = new CANNON.Plane();
 let floor = new CANNON.Body({ shape: floorShape, mass: 0, collisionFilterGroup: 1, collisionFilterMask: -1 });
 let floorBodyMaterial = new CANNON.Material("floorBodyMaterial");
-floorBodyMaterial.friction = 0.4;
-floorBodyMaterial.restitution = 0;
+floorBodyMaterial.friction = 0.01;
+floorBodyMaterial.restitution = 0.1;
 floor.material = floorBodyMaterial;
 floor.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2)
 floor.position.set(0,0,0);
@@ -432,26 +434,29 @@ let wallGeo = new THREE.BoxGeometry(10,10,1);
 let wallMat = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
 let wall = new THREE.Mesh(wallGeo, wallMat);
 wall.position.set(0, 5, -15);
-wall.userData.cc = "wall"
+wall.userData.cc = "wall";
 scene.add(wall);
 
 let wallShape = new CANNON.Box(new CANNON.Vec3(5,5,0.5));
 let wallBody = new CANNON.Body({ shape: wallShape, mass: 0 });
+let wallBodyMaterial = new CANNON.Material("wallBodyMaterial");
+wallBodyMaterial.friction = 0.1;
+wallBodyMaterial.restitution = 0.1;
+wallBody.material = wallBodyMaterial;
 wallBody.userData = { cc: "wall" }
 wallBody.position.copy(wall.position);
 world.addBody(wallBody)
 
 
 let jump = () => {
-  if(true) {
-    // isJumping = true;
-    // jumpStartTime = Date.now();
+  if(!isJumping) {
+    isJumping = true;
     PLAYER.body.velocity.y = (30 * PLAYER.jump_multiplier);
   }
 }
 
  
-let parryLevel = [0x2196F3,0x009688,0x8BC34A,0xFFEB3B,0xFF5722,0xEB144C]
+let parryLevel = [0x2196F3,0x009688,0x8BC34A,0xFFEB3B,0xFF5722,0xEB144C];
 let projectiles = [];
 
 class TrainingBot {
@@ -460,7 +465,7 @@ class TrainingBot {
     this.body = body;
     this.fr = 2000;
     this.damage = 10;
-    this.speed = 100;
+    this.speed = 50;
 
     setInterval(() => {
       this.shootProjectile();
@@ -475,7 +480,7 @@ class TrainingBot {
     pMesh.userData.parryLevel = 0;
 
     let pShape = new CANNON.Sphere(1);
-    let pBody = new CANNON.Body({ shape: pShape, mass: 5, linearDamping: 0.2 });
+    let pBody = new CANNON.Body({ shape: pShape, mass: 1, linearDamping: 0.1 });
     pBody.position.set(this.body.position.x, this.body.position.y+4, this.body.position.z);
     world.addBody(pBody);
     pMesh.position.copy(pBody.position);
@@ -488,10 +493,11 @@ class TrainingBot {
     direction.normalize();
     let initialVelocity = new CANNON.Vec3();
     direction.scale(this.speed, initialVelocity);
-    
-    // Set the initial velocity to the projectile's body
+
     pBody.userData = { mesh: pMesh, cc: "enemyProjectile", createdAt: Date.now() }
     pBody.velocity.copy(initialVelocity);
+
+    pBody.addEventListener("collide", (e) => {console.log(e); e.body.userData.createdAt -= 1000; e.target.userData.createdAt -= 1000; })
   }
 }
 
@@ -518,12 +524,9 @@ let bot = new TrainingBot(botMesh, botBody);
 
 
 let parry = () => {
-  // console.log("PARRY!")
   if(PLAYER.time_since_last_parry + PLAYER.parry_cooldown < Date.now()) {
     PLAYER.time_since_last_parry = Date.now();
-
   }
-
 }
 
 let reflectProjectile = (projectile, perfect=false) => {
@@ -543,8 +546,6 @@ let reflectProjectile = (projectile, perfect=false) => {
     camera.getWorldDirection(direction);
     projectile.position.copy(camera.position);
     projectile.velocity.set(direction.x *75, direction.y, direction.z *75);
-    // projectile.userData.mesh.userData.parryLevel += 1;
-    // projectile.userData.mesh.material.color.setHex(parryLevel[projectile.userData.mesh.userData.parryLevel]);
   }
 }
 
@@ -556,47 +557,35 @@ let reflectProjectile = (projectile, perfect=false) => {
 
 
 
-
-
-
-// let parry = () => {
-//   // console.log("PARRY!")
-//   if(PLAYER.time_since_last_parry + PLAYER.parry_cooldown < Date.now()) {
-//     PLAYER.time_since_last_parry = Date.now();
-//     for(let i = 0; i < projectiles.length; i++) {
-//       let direction = new THREE.Vector3();
-//       direction.subVectors(projectiles[i].mesh.position, PLAYER.body.position).normalize();
-//       let ray = new THREE.Raycaster(PLAYER.body.position, direction, 0, 20);
-//       let intersections = ray.intersectObject(projectiles[i].mesh);
-//       if(intersections.length > 0) {
-//         if(intersections[0].distance < 3) {
-//           console.log('PERFECT PARRY');
-//         } else if(intersections[0].distance < 5) {
-//           console.log("PARRY");
-//         } else {
-//           console.log('MISS!');
-//         }
-//         console.log(intersections[0].distance)
-//       }
-//     }
-//   }
-
-// }
-
 let dcw = document.getElementById("dodge-cooldown-wrapper");
 const dodge_cooldown = document.createElement('circle-progress');
 dodge_cooldown.classList.add("dodge-circle")
 dodge_cooldown.max = 100;
 dodge_cooldown.value = 0;
-dodge_cooldown.textFormat = () => "dodge";
+dodge_cooldown.textFormat = (v) => {
+  if(v == 100) { return "[M2]" }
+  else { return ((PLAYER.dodge_cooldown/1000) - (v/100)*PLAYER.dodge_cooldown/1000).toFixed(1) + "s" }
+};
 dcw.appendChild(dodge_cooldown);
 
+let pcw = document.getElementById("parry-cooldown-wrapper");
+const parry_cooldown = document.createElement('circle-progress');
+parry_cooldown.classList.add("parry-circle");
+parry_cooldown.max = 100;
+parry_cooldown.value = 0;
+parry_cooldown.textFormat = (v) => {
+  if(v == 100) { return "[E]" }
+  else { return ((PLAYER.parry_cooldown/1000) - (v/100)*PLAYER.parry_cooldown/1000).toFixed(1) + "s" }
+};
+pcw.appendChild(parry_cooldown);
 
 // update cooldowns
 setInterval(() => {
-  let value = ((Date.now() - PLAYER.time_since_last_dodge) / PLAYER.dodge_cooldown) * 100;
-  dodge_cooldown.value = value ;
+  let d_value = ((Date.now() - PLAYER.time_since_last_dodge) / PLAYER.dodge_cooldown) * 100;
+  dodge_cooldown.value = d_value;
   
+  let p_value = ((Date.now() - PLAYER.time_since_last_parry) / PLAYER.parry_cooldown) * 100;
+  parry_cooldown.value = p_value;
 }, 50)
 
 
@@ -618,7 +607,9 @@ let updateProjectiles = () => {
 }
 
 
-
+setInterval(() => {
+  console.log("\nPLAYER VELOCITY:\n", "x:", PLAYER.body.velocity.x.toFixed(1), "y:", PLAYER.body.velocity.y.toFixed(1), "z:", PLAYER.body.velocity.z.toFixed(1))
+}, 500);
 
 
 // Animate function
