@@ -19,6 +19,42 @@
 	</head>
     <!-- <div id="info">Description</div> -->
 	<body>
+
+        <dialog id="tab-menu">
+            <div class="tab-wrapper">
+                <div id="tab-close-button" class="tab-close-button">close</div>
+                <div class="icon-wrapper"></div>
+                <div class="settings-wrapper"><div id="settings-button" class="settings-button button">settings</div></div>
+                <div class="keybinds-wrapper"><div id="keybinds-button" class="keybinds-button button">keybinds</div></div>
+                <div class="info-wrapper"><div class="info-button button">info</div></div>
+                <div class="exit-wrapper"><div class="exit-button button">exit game</div></div>
+                
+            </div>
+        </dialog>
+
+        <dialog id="settings-menu">
+            <div class="settings-wrapper">
+                <div id="settings-close-button" class="settings-close-button">close</div>
+                <div class="volume-wrapper"><div class="volume-label label">volume:</div><input id="volume-value" class="settings-value" title="volume" value="10" type="range"></div>
+                <div class="sensitivity-wrapper"><div class="sensitivity-label label">sensitivity:</div><input id="sensitivity-value" class="settings-value sens-input" title="sensitivity" type="number" value="0.002" step="0.01"></div>
+                <div class="hitboxes-wrapper"><div class="hitbox-label label">show hitboxes:</div><input  id="hitbox-value" class="settings-value" title="hitboxes?" type="checkbox"></div>
+            </div>
+        </dialog>
+
+        <dialog id="keybinds-menu">
+            <div class="keybinds-wrapper">
+                <div id="keybinds-close-button" class="keybinds-close-button">close</div>
+                <div class="keybind-item-wrapper"><div class="keybind-label">forward</div><input id="key-forward-value" class="keybind-input" title="forward" type="text" value="w"></div>
+                <div class="keybind-item-wrapper"><div class="keybind-label">backward</div><input id="key-backward-value" class="keybind-input" title="backward" type="text" value="s"></div>
+                <div class="keybind-item-wrapper"><div class="keybind-label">left</div><input id="key-left-value" class="keybind-input" title="left" type="text" value="a"></div>
+                <div class="keybind-item-wrapper"><div class="keybind-label">right</div><input id="key-right-value" class="keybind-input" title="right" type="text" value="d"></div>
+                <div class="keybind-item-wrapper"><div class="keybind-label">jump</div><input id="key-jump-value" class="keybind-input" title="jump" type="text" value="d"></div>
+                <div class="keybind-item-wrapper"><div class="keybind-label">shoot</div><input id="key-shoot-value" class="keybind-input" title="shoot" type="text" value="d"></div>
+                <div class="keybind-item-wrapper"><div class="keybind-label">dodge</div><input id="key-dodge-value" class="keybind-input" title="dodge" type="text" value="d"></div>
+                <div class="keybind-item-wrapper"><div class="keybind-label">parry</div><input id="key-parry-value" class="keybind-input" title="parry" type="text" value="d"></div>
+            </div>
+        </dialog>
+
         <div class="crosshair-wrapper"><span class="crosshair-v"></span><span class="crosshair-h"></span></div>
         <div class="cooldowns-wrapper">
             <div id="dodge-cooldown-wrapper" class="dodge-cooldown-wrapper"><div class="cooldown-label">DODGE</div></div>

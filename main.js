@@ -18,6 +18,9 @@ let worldBuildMode = false;
 let bodiesToRemove = [];
 let meshToRemove = [];
 
+let allowMovement = true;
+let allowCamera = true;
+
 let PLAYER = new Player("steve");
 
 let toggleCursorLock = (force=false) => {
@@ -25,7 +28,7 @@ let toggleCursorLock = (force=false) => {
     canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
     canvas.requestPointerLock();
   } else {
-    if(!isInventoryOpen && !isAlreadyDead) {
+    if(!isTabOpen) {
       canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
       canvas.requestPointerLock();
     } else {
@@ -53,7 +56,7 @@ world.quatNormalizeSkip = 0;
 world.quatNormalizeFast = false;
 world.defaultContactMaterial.contactEquationStiffness = 1e9;
 world.defaultContactMaterial.contactEquationRelaxation = 4;
-world.gravity.set(0,-15,0);
+world.gravity.set(0,-20,0);
 world.broadphase = new CANNON.NaiveBroadphase();
 // let phyMaterial = new CANNON.Material("slipperyMaterial");
 // let phyContactMaterial = new CANNON.ContactMaterial(phyMaterial, phyMaterial, {friction: 0.0, restitution: 0.3});
@@ -70,7 +73,7 @@ let create_player_body = (player) => {
   let shape = new CANNON.Box(new CANNON.Vec3(1,2,1));
   let playerBody = new CANNON.Body({ shape: shape, mass: 50, fixedRotation: true, linearDamping: 0.99 });
   let playerMaterial = new CANNON.Material("playerMaterial");
-  playerMaterial.friction = 0.05;
+  playerMaterial.friction = 0.1;
   playerMaterial.restitution = 0;
   playerBody.material = playerMaterial;
   playerBody.position.set(l[0],l[1],l[2]);
@@ -162,6 +165,9 @@ let onKeyDown = (event) => {
       break
     case "e":
       parry();
+      break
+    case "Tab":
+      toggleTab(event);
       break
   }
 }
@@ -412,8 +418,8 @@ let checkForWall = (start, direction, length) => {
 let floorShape = new CANNON.Plane();
 let floor = new CANNON.Body({ shape: floorShape, mass: 0, collisionFilterGroup: 1, collisionFilterMask: -1 });
 let floorBodyMaterial = new CANNON.Material("floorBodyMaterial");
-floorBodyMaterial.friction = 0.01;
-floorBodyMaterial.restitution = 0.1;
+floorBodyMaterial.friction = 0.05;
+floorBodyMaterial.restitution = 0;
 floor.material = floorBodyMaterial;
 floor.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2)
 floor.position.set(0,0,0);
@@ -451,7 +457,7 @@ world.addBody(wallBody)
 let jump = () => {
   if(!isJumping) {
     isJumping = true;
-    PLAYER.body.velocity.y = (30 * PLAYER.jump_multiplier);
+    PLAYER.body.velocity.y = (10 * PLAYER.jump_multiplier);
   }
 }
 
@@ -465,7 +471,7 @@ class TrainingBot {
     this.body = body;
     this.fr = 2000;
     this.damage = 10;
-    this.speed = 50;
+    this.speed = 100;
 
     setInterval(() => {
       this.shootProjectile();
@@ -473,14 +479,13 @@ class TrainingBot {
   }
 
   shootProjectile () {
-    console.log("FIRE!!")
     let pGeo = new THREE.SphereGeometry(0.5);
     let pMat = new THREE.MeshBasicMaterial({ color: 0x2196F3 });
     let pMesh = new THREE.Mesh(pGeo, pMat);
     pMesh.userData.parryLevel = 0;
 
     let pShape = new CANNON.Sphere(1);
-    let pBody = new CANNON.Body({ shape: pShape, mass: 1, linearDamping: 0.1 });
+    let pBody = new CANNON.Body({ shape: pShape, mass: 1, linearDamping: 0.05 });
     pBody.position.set(this.body.position.x, this.body.position.y+4, this.body.position.z);
     world.addBody(pBody);
     pMesh.position.copy(pBody.position);
@@ -607,8 +612,149 @@ let updateProjectiles = () => {
 }
 
 
+
+
+
+
+
+
+
+
+document.getElementById("tab-close-button").addEventListener("click", (e) => { toggleTab(e) })
+let isTabOpen = false;
+let tabMenu = document.getElementById("tab-menu");
+let toggleTab = (event) => {
+  event.preventDefault();
+  if(!isTabOpen) {
+    tabMenu.showModal();
+    isTabOpen = true;
+    toggleCursorLock();
+    tabMenu.focus();
+  } else {
+    tabMenu.close();
+    isTabOpen = false;
+    toggleCursorLock();
+  }
+}
+
+document.getElementById("settings-button").addEventListener("click", (e) => { toggleSettings() })
+document.getElementById("settings-close-button").addEventListener("click", (e) => { toggleSettings() })
+let isSettingsOpen = false;
+let settings = document.getElementById("settings-menu");
+let toggleSettings = () => {
+  if(!isSettingsOpen) {
+    settings.showModal();
+    isSettingsOpen = true;
+    // toggleCursorLock();
+    settings.focus();
+  } else {
+    settings.close();
+    isSettingsOpen = false;
+    // toggleCursorLock();
+  }
+}
+
+document.getElementById("keybinds-button").addEventListener("click", (e) => { toggleKeybinds() })
+document.getElementById("keybinds-close-button").addEventListener("click", (e) => { toggleKeybinds() })
+let isKeybindsOpen = false;
+let keybinds = document.getElementById("keybinds-menu");
+let toggleKeybinds = () => {
+  if(!isKeybindsOpen) {
+    keybinds.showModal();
+    isKeybindsOpen = true;
+    // toggleCursorLock();
+    keybinds.focus();
+  } else {
+    keybinds.close();
+    isKeybindsOpen = false;
+    // toggleCursorLock();
+  }
+}
+
+
+
+
+let defaultSettings = {
+  "volume": "20",
+  "sensitivity": "0.002",
+  "showHitboxes": "true",
+  "keybinds": {
+    "forward": "w",
+    "backward": "s",
+    "left": "a",
+    "right": "d",
+    "jump": "Space",
+    "shoot": "mb1",
+    "dodge": "mb2",
+    "parry": "e",
+    "menu": "Tab"
+  }
+}
+
+let handleKeybindInput = (e) => {
+  if(e.key != undefined) {
+    e.preventDefault();
+    e.target.value = e.key;
+    console.log(e.key)
+  } else {
+    // e.preventDefault();
+    e.target.value = `mb${e.button}`;
+  }
+
+}
+
+
+document.getElementById("key-forward-value").addEventListener("keydown", handleKeybindInput)
+document.getElementById("key-backward-value").addEventListener("keydown", handleKeybindInput)
+document.getElementById("key-left-value").addEventListener("keydown", handleKeybindInput)
+document.getElementById("key-right-value").addEventListener("keydown", handleKeybindInput)
+document.getElementById("key-jump-value").addEventListener("keydown", handleKeybindInput)
+document.getElementById("key-shoot-value").addEventListener("keydown", handleKeybindInput)
+document.getElementById("key-dodge-value").addEventListener("keydown", handleKeybindInput)
+document.getElementById("key-parry-value").addEventListener("keydown", handleKeybindInput)
+
+document.getElementById("key-forward-value").addEventListener("mousedown", handleKeybindInput)
+document.getElementById("key-backward-value").addEventListener("mousedown", handleKeybindInput)
+document.getElementById("key-left-value").addEventListener("mousedown", handleKeybindInput)
+document.getElementById("key-right-value").addEventListener("mousedown", handleKeybindInput)
+document.getElementById("key-jump-value").addEventListener("mousedown", handleKeybindInput)
+document.getElementById("key-shoot-value").addEventListener("mousedown", handleKeybindInput)
+document.getElementById("key-dodge-value").addEventListener("mousedown", handleKeybindInput)
+document.getElementById("key-parry-value").addEventListener("mousedown", handleKeybindInput)
+
+
+
+
+
+
+let getPlayerSettings = () => {
+  let settingsString = window.localStorage.getItem("playersettings");
+  if(settingsString != undefined) {
+    // set html elements to these values
+    let settingObj = JSON.parse(settingsString);
+    document.getElementById("volume-value").value = settingObj.volume
+    document.getElementById("sensitivity-value").value = settingObj.sensitivity
+    document.getElementById("hitbox-value").value = settingObj.showHitboxes
+    // document.getElementById("key-forward-value").value = settingObj.keybinds.forward
+    // document.getElementById("key-backward-value").value = settingObj.keybinds.backward
+    // document.getElementById("key-left-value").value = settingObj.keybinds.left
+    // document.getElementById("key-right-value").value = settingObj.keybinds.right
+    // document.getElementById("key-jump-value").value = settingObj.keybinds.jump
+    // document.getElementById("key-shoot-value").value = settingObj.keybinds.shoot
+    // document.getElementById("key-dodge-value").value = settingObj.keybinds.dodge
+    // document.getElementById("key-parry-value").value = settingObj.keybinds.parry
+    // document.getElementById("key-menu-value").value = settingObj.keybinds.menu
+
+  } else {
+    window.localStorage.setItem("playersettings", JSON.stringify(defaultSettings));
+  }
+}
+
+getPlayerSettings()
+
 setInterval(() => {
-  console.log("\nPLAYER VELOCITY:\n", "x:", PLAYER.body.velocity.x.toFixed(1), "y:", PLAYER.body.velocity.y.toFixed(1), "z:", PLAYER.body.velocity.z.toFixed(1))
+  // console.log(renderer)
+  // console.log("\nPLAYER VELOCITY:\n", "x:", PLAYER.body.velocity.x.toFixed(1), "y:", PLAYER.body.velocity.y.toFixed(1), "z:", PLAYER.body.velocity.z.toFixed(1))
 }, 500);
 
 
@@ -626,8 +772,13 @@ const animate = () => {
     bodiesToRemove.forEach(removeBodies);
     meshToRemove.forEach(removeMesh);
       
-    requestAnimationFrame(animate);
+    
     renderer.render(scene, camera);
 };
+
+setInterval(() => {
+  if(!document.webkitHidden) { requestAnimationFrame(animate); }
+}, 1000 / 60);
+
 
 animate()

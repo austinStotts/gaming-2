@@ -7,15 +7,15 @@ export default class Player {
     constructor(id) {
         this.class = "player"
         this.id = id;
-        this.speed = 0.05;
+        this.speed = 0.1;
         this.acc = 20;
 
         this.mesh;
         this.body;
 
-        this.jump_multiplier = 1;
+        this.jump_multiplier = 1.5;
 
-        this.dodge_distance = 100;
+        this.dodge_distance = 50;
         this.dodge_cooldown = 1000; // 1000
         this.time_since_last_dodge = Date.now();
 

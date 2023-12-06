@@ -72,6 +72,157 @@
     stroke: dodgerblue;
 }
 
+#tab-menu {
+    background-color: black;
+    border: 0px;
+}
+
+#tab-menu:focus {
+    outline: none;
+}
+
+.tab-wrapper {
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+}
+
+.button {
+    
+}
+
+.button:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.settings-wrapper {
+
+}
+
+.keybinds-wrapper {
+
+}
+
+.info-wrapper {
+
+}
+
+.exit-wrapper {
+
+}
+
+
+
+
+
+#settings-menu {
+    background-color: black;
+    border: 0px;
+}
+
+#settings-menu:focus {
+    outline: none;
+}
+
+.settings-wrapper {
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.volume-wrapper {
+    display: block;
+}
+
+.sensitivity-wrapper {
+
+}
+
+.hitboxes-wrapper {
+
+}
+
+.label {
+    display: inline-block;
+}
+
+.settings-value {
+    display: inline-block;
+}
+
+.sens-input {
+    background-color: black;
+    color: white;
+    width: 60px;
+    border: none;
+    margin-left: 5px;
+}
+
+.tab-close-button {
+    transition-duration: 0.1s;
+    margin-bottom: 10px;
+}
+
+.tab-close-button:hover {
+    cursor: pointer;
+    margin-left: 5px;
+    font-style: italic;
+    text-decoration: underline;
+}
+
+.settings-close-button {
+    transition-duration: 0.1s;
+    margin-bottom: 10px;
+}
+
+.settings-close-button:hover {
+    cursor: pointer;
+    margin-left: 5px;
+    font-style: italic;
+    text-decoration: underline;
+}
+
+.keybinds-close-button {
+    transition-duration: 0.1s;
+    margin-bottom: 10px;
+}
+
+.keybinds-close-button:hover {
+    cursor: pointer;
+    margin-left: 5px;
+    font-style: italic;
+    text-decoration: underline;
+}
+
+
+
+#keybinds-menu {
+    background-color: black;
+    border: none;
+    width: 150px;
+}
+
+#keybinds-menu:focus {
+    outline: none;
+}
+
+.keybinds-wrapper {
+    
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.keybind-label {
+    display: inline-block;
+    margin: 2px 3px;
+}
+
+.keybind-input {
+    display: inline-block;
+    width: 40px;
+    float: right;
+    margin-right: 3px;
+}
+
 
 
 
