@@ -21,6 +21,50 @@ let meshToRemove = [];
 let allowMovement = true;
 let allowCamera = true;
 
+
+let defaultSettings = {
+  "volume": "20",
+  "sensitivity": "0.002",
+  "showHitboxes": "true",
+  "keybinds": {
+    "forward": "w",
+    "backward": "s",
+    "left": "a",
+    "right": "d",
+    "jump": "Space",
+    "shoot": "mb1",
+    "dodge": "mb2",
+    "parry": "e",
+    "menu": "Tab"
+  }
+}
+
+let currentSettings = {
+  "volume": "20",
+  "sensitivity": "0.002",
+  "showHitboxes": "true",
+  "keybinds": {
+    "forward": "w",
+    "backward": "s",
+    "left": "a",
+    "right": "d",
+    "jump": " ",
+    "shoot": "mb1",
+    "dodge": "mb2",
+    "parry": "e",
+    "menu": "Tab"
+  }
+}
+
+
+
+
+
+
+
+
+
+
 let PLAYER = new Player("steve");
 
 let toggleCursorLock = (force=false) => {
@@ -130,22 +174,22 @@ let keys = {};
 let onKeyDown = (event) => {
   // console.log(event.key)
   switch (event.key) {
-    case "w":
+    case currentSettings.keybinds.forward:
       keys.W = true;
       break;
-    case "a":
+    case currentSettings.keybinds.left:
       keys.A = true;
       break;
-    case "s":
+    case currentSettings.keybinds.backward:
       keys.S = true;
       break;
-    case "d":
+    case currentSettings.keybinds.right:
       keys.D = true;
       break;
-    case "r":
+    case currentSettings.keybinds.reload:
       reload(PLAYER);
       break
-    case " ":
+    case currentSettings.keybinds.jump:
       jump();
       break
     case "f":
@@ -163,10 +207,10 @@ let onKeyDown = (event) => {
     case "j":
       toggleBuildMode();
       break
-    case "e":
+    case currentSettings.keybinds.parry:
       parry();
       break
-    case "Tab":
+    case currentSettings.keybinds.menu:
       toggleTab(event);
       break
   }
@@ -174,16 +218,16 @@ let onKeyDown = (event) => {
 
 let onKeyUp = (event) => {
   switch (event.key) {
-    case "w":
+    case currentSettings.keybinds.forward:
       keys.W = false;
       break;
-    case "a":
+    case currentSettings.keybinds.left:
       keys.A = false;
       break;
-    case "s":
+    case currentSettings.keybinds.backward:
       keys.S = false;
       break;
-    case "d":
+    case currentSettings.keybinds.right:
       keys.D = false;
       break;
   }
@@ -332,15 +376,10 @@ window.addEventListener("mousedown", (event) => {
   handleMouseDown(event.button);
 })
 
-// window.addEventListener("mouseup", (event) => {
-//   mouse[event.button] = false; 
-// })
-
 let handleMouseDown = (button) => {
   if(!isAlreadyDead) {
-    if(button == 2 && PLAYER.time_since_last_dodge + PLAYER.dodge_cooldown < Date.now()) {
+    if(button == currentSettings.keybinds.dodge[2] && PLAYER.time_since_last_dodge + PLAYER.dodge_cooldown < Date.now()) {
       if(keys.W || keys.A || keys.S || keys.D) {
-        // get direction
 
         let velocity = new THREE.Vector3();
         let direction = new THREE.Vector3();
@@ -354,22 +393,15 @@ let handleMouseDown = (button) => {
         direction.normalize();
         const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
         velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
-        // PLAYER.dodge(velocity);
-        // console.log(PLAYER.body.position)
         PLAYER.dodge(velocity, checkForWall(PLAYER.body.position, velocity.normalize(), PLAYER.dodge_distance))
       } else {
-        // default forward
-        // get direction
         let velocity = new THREE.Vector3();
         let direction = new THREE.Vector3();
         direction.set(0, 0, -1);
-
         direction.normalize();
         const rotation = new THREE.Euler(0, camera.rotation.y, 0, "XYZ");
         velocity.copy(direction).applyEuler(rotation).multiplyScalar(PLAYER.acc);
         PLAYER.dodge(velocity, checkForWall(PLAYER.body.position, velocity.normalize(), PLAYER.dodge_distance))
-        // PLAYER.time_since_last_dodge = Date.now();
-        // PLAYER.dodge(velocity);
       }
       
     }
@@ -377,7 +409,6 @@ let handleMouseDown = (button) => {
 }
 
 let checkForWall = (start, direction, length) => {
-  // console.log(scene.children)
 
   var rayGeometry = new THREE.BufferGeometry().setFromPoints([
     new THREE.Vector3(start.x, start.y, start.z),
@@ -399,15 +430,8 @@ let checkForWall = (start, direction, length) => {
         return intersections[0].distance-1
       }
     }
-    // intersections.forEach(child => {
-    //   if(child.object.type == "Mesh") {
-    //     console.log("mesh hit", child.distance);
-    //     return child.distance-1
-    //   }
-    // })
   }
   return PLAYER.dodge_distance
-  
 }
 
 
@@ -452,6 +476,30 @@ wallBody.material = wallBodyMaterial;
 wallBody.userData = { cc: "wall" }
 wallBody.position.copy(wall.position);
 world.addBody(wallBody)
+
+
+
+let rampGeo = new THREE.BoxGeometry(10,10,1);
+let rampMat = new THREE.MeshBasicMaterial({color: 0xFF1111});
+let rampMesh = new THREE.Mesh(rampGeo, rampMat);
+rampMesh.position.set(-10,2,10);
+rampMesh.rotateX(45);
+scene.add(rampMesh)
+
+let rampShape = new CANNON.Box(new CANNON.Vec3(5,5,0.5))
+let rampBody = new CANNON.Body({shape: rampShape, mass: 0})
+rampBody.userData = {mesh: floorMesh, cc: "floor"}
+rampBody.material = floorBodyMaterial;
+rampBody.position.copy(rampMesh.position);
+rampBody.quaternion.copy(rampMesh.quaternion);
+world.addBody(rampBody)
+
+
+
+
+
+
+
 
 
 let jump = () => {
@@ -545,7 +593,7 @@ let reflectProjectile = (projectile, perfect=false) => {
     projectile.userData.mesh.userData.parryLevel += 1;
     projectile.userData.mesh.material.color.setHex(parryLevel[projectile.userData.mesh.userData.parryLevel]);
   } else {
-    PLAYER.time_since_last_parry = 0;
+    // PLAYER.time_since_last_parry = 0;
     projectile.userData.createdAt = Date.now();
     let direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
@@ -638,7 +686,7 @@ let toggleTab = (event) => {
 }
 
 document.getElementById("settings-button").addEventListener("click", (e) => { toggleSettings() })
-document.getElementById("settings-close-button").addEventListener("click", (e) => { toggleSettings() })
+document.getElementById("settings-close-button").addEventListener("click", (e) => { toggleSettings(); savePlayerSettings(); })
 let isSettingsOpen = false;
 let settings = document.getElementById("settings-menu");
 let toggleSettings = () => {
@@ -655,7 +703,7 @@ let toggleSettings = () => {
 }
 
 document.getElementById("keybinds-button").addEventListener("click", (e) => { toggleKeybinds() })
-document.getElementById("keybinds-close-button").addEventListener("click", (e) => { toggleKeybinds() })
+document.getElementById("keybinds-close-button").addEventListener("click", (e) => { toggleKeybinds(); savePlayerSettings(); })
 let isKeybindsOpen = false;
 let keybinds = document.getElementById("keybinds-menu");
 let toggleKeybinds = () => {
@@ -674,22 +722,7 @@ let toggleKeybinds = () => {
 
 
 
-let defaultSettings = {
-  "volume": "20",
-  "sensitivity": "0.002",
-  "showHitboxes": "true",
-  "keybinds": {
-    "forward": "w",
-    "backward": "s",
-    "left": "a",
-    "right": "d",
-    "jump": "Space",
-    "shoot": "mb1",
-    "dodge": "mb2",
-    "parry": "e",
-    "menu": "Tab"
-  }
-}
+
 
 let handleKeybindInput = (e) => {
   if(e.key != undefined) {
@@ -725,25 +758,40 @@ document.getElementById("key-parry-value").addEventListener("mousedown", handleK
 
 
 
+let savePlayerSettings = () => {
+  currentSettings.volume = document.getElementById("volume-value").value == "Space" ? " " : document.getElementById("volume-value").value
+  currentSettings.sensitivity = document.getElementById("sensitivity-value").value == "Space" ? " " : document.getElementById("sensitivity-value").value
+  currentSettings.showHitboxes = document.getElementById("hitbox-value").value == "Space" ? " " : document.getElementById("hitbox-value").value
+  currentSettings.keybinds.forward = document.getElementById("key-forward-value").value == "Space" ? " " : document.getElementById("key-forward-value").value
+  currentSettings.keybinds.backward = document.getElementById("key-backward-value").value == "Space" ? " " : document.getElementById("key-backward-value").value
+  currentSettings.keybinds.left = document.getElementById("key-left-value").value == "Space" ? " " : document.getElementById("key-left-value").value
+  currentSettings.keybinds.right = document.getElementById("key-right-value").value == "Space" ? " " : document.getElementById("key-right-value").value
+  currentSettings.keybinds.jump = document.getElementById("key-jump-value").value == "Space" ? " " : document.getElementById("key-jump-value").value
+  currentSettings.keybinds.shoot = document.getElementById("key-shoot-value").value == "Space" ? " " : document.getElementById("key-shoot-value").value
+  currentSettings.keybinds.dodge = document.getElementById("key-dodge-value").value == "Space" ? " " : document.getElementById("key-dodge-value").value
+  currentSettings.keybinds.parry = document.getElementById("key-parry-value").value == "Space" ? " " : document.getElementById("key-parry-value").value
+  currentSettings.keybinds.menu = document.getElementById("key-menu-value").value == "Space" ? " " : document.getElementById("key-menu-value").value
 
+  window.localStorage.setItem("playersettings", JSON.stringify(currentSettings))
+}
 
 let getPlayerSettings = () => {
   let settingsString = window.localStorage.getItem("playersettings");
   if(settingsString != undefined) {
     // set html elements to these values
     let settingObj = JSON.parse(settingsString);
-    document.getElementById("volume-value").value = settingObj.volume
-    document.getElementById("sensitivity-value").value = settingObj.sensitivity
-    document.getElementById("hitbox-value").value = settingObj.showHitboxes
-    // document.getElementById("key-forward-value").value = settingObj.keybinds.forward
-    // document.getElementById("key-backward-value").value = settingObj.keybinds.backward
-    // document.getElementById("key-left-value").value = settingObj.keybinds.left
-    // document.getElementById("key-right-value").value = settingObj.keybinds.right
-    // document.getElementById("key-jump-value").value = settingObj.keybinds.jump
-    // document.getElementById("key-shoot-value").value = settingObj.keybinds.shoot
-    // document.getElementById("key-dodge-value").value = settingObj.keybinds.dodge
-    // document.getElementById("key-parry-value").value = settingObj.keybinds.parry
-    // document.getElementById("key-menu-value").value = settingObj.keybinds.menu
+    document.getElementById("volume-value").value = settingObj.volume;
+    document.getElementById("sensitivity-value").value = settingObj.sensitivity;
+    document.getElementById("hitbox-value").value = settingObj.showHitboxes;
+    document.getElementById("key-forward-value").value = settingObj.keybinds.forward == " " ? "Space" : settingObj.keybinds.forward;
+    document.getElementById("key-backward-value").value = settingObj.keybinds.backward == " " ? "Space" : settingObj.keybinds.backward;
+    document.getElementById("key-left-value").value = settingObj.keybinds.left == " " ? "Space" : settingObj.keybinds.left;
+    document.getElementById("key-right-value").value = settingObj.keybinds.right == " " ? "Space" : settingObj.keybinds.right;
+    document.getElementById("key-jump-value").value = settingObj.keybinds.jump == " " ? "Space" : settingObj.keybinds.jump;
+    document.getElementById("key-shoot-value").value = settingObj.keybinds.shoot == " " ? "Space" : settingObj.keybinds.shoot;
+    document.getElementById("key-dodge-value").value = settingObj.keybinds.dodge == " " ? "Space" : settingObj.keybinds.dodge;
+    document.getElementById("key-parry-value").value = settingObj.keybinds.parry == " " ? "Space" : settingObj.keybinds.parry;
+    document.getElementById("key-menu-value").value = settingObj.keybinds.menu == " " ? "Space" : settingObj.keybinds.menu;
 
   } else {
     window.localStorage.setItem("playersettings", JSON.stringify(defaultSettings));
