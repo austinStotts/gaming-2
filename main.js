@@ -32,7 +32,7 @@ let defaultSettings = {
     "left": "a",
     "right": "d",
     "jump": "Space",
-    "shoot": "mb1",
+    "shoot": "mb0",
     "dodge": "mb2",
     "parry": "e",
     "menu": "Tab"
@@ -49,7 +49,7 @@ let currentSettings = {
     "left": "a",
     "right": "d",
     "jump": " ",
-    "shoot": "mb1",
+    "shoot": "mb0",
     "dodge": "mb2",
     "parry": "e",
     "menu": "Tab"
@@ -404,10 +404,16 @@ let handleMouseDown = (button) => {
         PLAYER.dodge(velocity, checkForWall(PLAYER.body.position, velocity.normalize(), PLAYER.dodge_distance))
       }
       
+    } else if(button == currentSettings.keybinds.shoot[2] && PLAYER.time_since_last_shoot + PLAYER.shoot_cooldown < Date.now()) {
+      let playerProjectile = PLAYER.createProjectile(camera);
+      projectiles.push(playerProjectile);
+      scene.add(playerProjectile.mesh);
+      world.addBody(playerProjectile.body);
+      PLAYER.time_since_last_shoot = Date.now();
     }
   }
 }
-
+// camera.getWorldDirection()
 let checkForWall = (start, direction, length) => {
 
   var rayGeometry = new THREE.BufferGeometry().setFromPoints([
@@ -478,22 +484,24 @@ wallBody.position.copy(wall.position);
 world.addBody(wallBody)
 
 
+// for(let i = 0; i < 4; i++) {
 
-let rampGeo = new THREE.BoxGeometry(10,10,1);
-let rampMat = new THREE.MeshBasicMaterial({color: 0xFF1111});
-let rampMesh = new THREE.Mesh(rampGeo, rampMat);
-rampMesh.position.set(-10,2,10);
-rampMesh.rotateX(45);
-scene.add(rampMesh)
+//   let rampGeo = new THREE.BoxGeometry(10,10,1);
+//   let rampMat = new THREE.MeshBasicMaterial({color: 0xFF1111});
+//   let rampMesh = new THREE.Mesh(rampGeo, rampMat);
+//   rampMesh.position.set(-10,2,10);
+//   // rampMesh.rotateX(45+(90*i));
+//   rampMesh.rotateY((90*i));
+//   scene.add(rampMesh)
 
-let rampShape = new CANNON.Box(new CANNON.Vec3(5,5,0.5))
-let rampBody = new CANNON.Body({shape: rampShape, mass: 0})
-rampBody.userData = {mesh: floorMesh, cc: "floor"}
-rampBody.material = floorBodyMaterial;
-rampBody.position.copy(rampMesh.position);
-rampBody.quaternion.copy(rampMesh.quaternion);
-world.addBody(rampBody)
-
+//   let rampShape = new CANNON.Box(new CANNON.Vec3(5,5,0.5))
+//   let rampBody = new CANNON.Body({shape: rampShape, mass: 0})
+//   rampBody.userData = {mesh: floorMesh, cc: "floor"}
+//   rampBody.material = floorBodyMaterial;
+//   rampBody.position.copy(rampMesh.position);
+//   rampBody.quaternion.copy(rampMesh.quaternion);
+//   world.addBody(rampBody)
+// }
 
 
 
@@ -568,7 +576,7 @@ botMesh.position.copy(botBody.position);
 scene.add(botMesh);
 world.addBody(botBody);
 
-let bot = new TrainingBot(botMesh, botBody);
+// let bot = new TrainingBot(botMesh, botBody);
 
 
 
