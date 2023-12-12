@@ -19,19 +19,19 @@
 	</head>
     <!-- <div id="info">Description</div> -->
 	<body>
-
+        <div id="live-data" class="live-data  ld-false">connected?: fasle</div>
         <dialog id="tab-menu">
             <div class="tab-wrapper">
                 <div id="tab-close-button" class="tab-close-button">close</div>
                 <div class="icon-wrapper"></div>
+                <div class="login-wrapper"><div id="login-button" class="login-button button">login</div></div>
+                <div class="online-wrapper"><div id="online-button" class="online-button button">online</div></div>
                 <div class="settings-wrapper"><div id="settings-button" class="settings-button button">settings</div></div>
                 <div class="keybinds-wrapper"><div id="keybinds-button" class="keybinds-button button">keybinds</div></div>
                 <div class="info-wrapper"><div class="info-button button">info</div></div>
                 <div class="exit-wrapper"><div class="exit-button button">exit game</div></div>
-                
             </div>
         </dialog>
-
         <dialog id="settings-menu">
             <div class="settings-wrapper">
                 <div id="settings-close-button" class="settings-close-button">close</div>
@@ -40,7 +40,6 @@
                 <div class="hitboxes-wrapper"><div class="hitbox-label label">show hitboxes:</div><input  id="hitbox-value" class="settings-value" title="hitboxes?" type="checkbox"></div>
             </div>
         </dialog>
-
         <dialog id="keybinds-menu">
             <div class="keybinds-wrapper">
                 <div id="keybinds-close-button" class="keybinds-close-button">close</div>
@@ -55,7 +54,29 @@
                 <div class="keybind-item-wrapper"><div class="keybind-label">menu</div><input id="key-menu-value" class="keybind-input" title="menu" type="text" value="Tab"></div>
             </div>
         </dialog>
-
+        <dialog id="login-dialog" class="dialog">
+            <div id="login-close-button" class="login-close-button">close</div>
+            <div class="login-input-label">username</div><input id="username-input" class="login-input" type="text">
+            <div class="login-input-label">password</div><input id="password-input" class="login-input" type="text"> 
+            <button id="login" class="login-button-f lb">login</button>
+            <button id="signup" class="login-button-f rb">signup</button>
+            <div id="login-errors" class="login-errors">username already in use</div>
+        </dialog>
+        <dialog id="online-dialog" class="dialog">
+            <div id="online-close-button" class="online-close-button">close</div>
+            <div class="connection-wrapper">
+                <button id="connect" class="online-button-f">connect</button>
+                <button id="disconnect" class="online-button-f unclickable">disconnect</button>
+            </div>
+            <div class="room-wrapper">
+                <button id="makeroom" class="online-button-f mr-btn unclickable">make room</button>
+                <div id="roomid-label" class="online-label" title="copy">00000</div>
+                <input id="roomid" type="text"  class="online-input no-input" title="roomid">
+                <button id="joinroom" class="online-button-f jr-btn unclickable">join room</button>
+                <button id="leaveroom" class="online-button-f lr-btn unclickable">leave room</button>
+            </div>
+            <div id="room-errors" class="room-errors"></div>
+        </dialog>
         <div class="crosshair-wrapper"><span class="crosshair-v"></span><span class="crosshair-h"></span></div>
         <div class="cooldowns-wrapper">
             <div id="dodge-cooldown-wrapper" class="dodge-cooldown-wrapper"><div class="cooldown-label">DODGE</div></div>

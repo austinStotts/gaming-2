@@ -124,6 +124,15 @@
     outline: none;
 }
 
+.login-wrapper {
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+}
+.online-wrapper {
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+}
+
 .settings-wrapper {
     color: white;
     font-family: 'Courier New', Courier, monospace;
@@ -243,4 +252,251 @@
     /* filter: invert(1); */
     /* mix-blend-mode: difference; */
     border-radius: 5px;
+}
+
+
+.live-data {
+    position: absolute;
+    z-index: 200;
+    /* width: 200px; */
+    top: 0;
+    left: 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    background-color: black;
+    border: 1px dashed grey;
+    padding: 1px 3px 1px 3px;
+}
+
+.ld-true {
+    color: rgb(19, 255, 39);
+}
+
+.ld-false {
+    color: rgb(255, 53, 38);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+button:hover {
+    cursor: pointer;
+}
+
+.dialog {
+    background-color: black;
+    color: white;
+    border: none;
+}
+
+.dialog:focus {
+    outline: none;
+}
+
+.login-input {
+    width: 148px;
+    background-color: black;
+    outline: 1px solid white;
+    border: none;
+    display: block;
+    margin: 8px 0px;
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+}
+
+.login-input:focus {
+    outline: 2px solid white;
+}
+
+.login-input-label {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.login-button-f {
+    background-color: black;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    width: 73px;
+    margin: 3px 0px;
+    float: left;
+    border: 1px solid white;
+    border-radius: 0px;
+    /* transition-duration: 0.1s; */
+}
+
+.lb {
+    margin-right: 3px;
+}
+
+.rb {
+    margin-left: 3px;
+}
+
+.login-button-f:hover {
+    
+    cursor: pointer;
+    --angle: 0deg;
+    /* font-style: italic; */
+    border-radius: 3px !important;
+    border-image: linear-gradient(var(--angle), rgb(253, 114, 255),rgb(114, 196, 255)) 1;
+    animation: 3s rotate linear infinite;
+}
+  
+@keyframes rotate {
+    to {
+        --angle: 360deg;
+    }
+}
+
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+
+.login-errors {
+    font-family: 'Courier New', Courier, monospace;
+    font-style: italic;
+    max-width: 150px;
+    color: red;
+    font-weight: 700;
+    margin-top: 50px;
+    height: 50px;
+}
+
+
+
+
+.online-input {
+    width: 91px;
+    margin-top: 10px;
+    border: 1px;
+    font-family: 'Courier New', Courier, monospace;
+    display: block;
+}
+
+.online-input:focus {
+    outline: none;
+}
+
+.online-button-f {
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+    display: block;
+    margin: 3px 0px;
+    border-radius: 0px !important;
+    font-family: 'Courier New', Courier, monospace;
+    width: 95px;
+}
+
+.online-button-f:focus {
+    outline: none;
+}
+
+
+.online-label {
+    width: 93px;
+    min-width: 75px;
+    border: 1px solid white;
+    display: inline-block;
+    background-color: transparent;
+    color: white;
+    text-align: center;
+    /* margin-left: 10px; */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 18px;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.connection-valid {
+    background-color: rgb(50, 255, 136) !important;
+    color: black;
+}
+
+.connection-valid:hover {
+    cursor: default;
+}
+
+.connection-wrapper {
+    /* border: 1px dashed green; */
+    margin: 5px 0px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.room-wrapper {
+    /* border: 1px dashed orange; */
+    margin: 10px 0px;
+    /* width: 200px; */
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.mr-btn {
+    display: block;
+}
+
+.unclickable {
+    background-color: black;
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.unclickable:hover {
+    cursor: default;
+}
+
+.no-input {
+    background-color: rgba(200, 200, 200, 0.7);
+}
+
+.no-input:hover {
+    cursor: default;
+}
+
+.no-input:focus {
+    outline: none;
+}
+
+.room-errors {
+    width: 95px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    color: red;
+}
+
+.login-close-button {
+    font-family: 'Courier New', Courier, monospace;
+    transition-duration: 0.1s;
+    margin-bottom: 10px;
+}
+
+.login-close-button:hover {
+    cursor: pointer;
+    margin-left: 5px;
+    font-style: italic;
+    text-decoration: underline;
+}
+
+.online-close-button {
+    font-family: 'Courier New', Courier, monospace;
+    transition-duration: 0.1s;
+    margin-bottom: 10px;
+}
+
+.online-close-button:hover {
+    cursor: pointer;
+    margin-left: 5px;
+    font-style: italic;
+    text-decoration: underline;
 }

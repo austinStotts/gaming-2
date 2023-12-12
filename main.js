@@ -806,7 +806,205 @@ let getPlayerSettings = () => {
   }
 }
 
-getPlayerSettings()
+getPlayerSettings();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import axios from "axios";
+import io from "socket.io-client";
+
+
+let ld = document.getElementById("login-dialog");
+// ld.showModal();
+
+let od = document.getElementById("online-dialog");
+// od.showModal();
+
+let c = document.getElementById("connect");
+let d = document.getElementById("disconnect");
+let mr = document.getElementById("makeroom");
+let ridl = document.getElementById("roomid-label");
+let rid = document.getElementById("roomid");
+let jr = document.getElementById("joinroom");
+let lr = document.getElementById("leaveroom");
+let re = document.getElementById("room-errors");
+
+ridl.addEventListener("click", () => {
+    navigator.clipboard.writeText(ridl.textContent)
+});
+
+
+// let r = document.getElementById("roomid-label");
+let socket;
+let inRoom = false;
+let isLoginOpen = false;
+let isOnlineOpen = false;
+
+document.getElementById("login-close-button").addEventListener("click", (e) => {
+    if(isLoginOpen) {
+        isLoginOpen = false;
+        ld.close();
+    }
+})
+
+document.getElementById("online-close-button").addEventListener("click", (e) => {
+    if(isOnlineOpen) {
+        isOnlineOpen = false;
+        od.close();
+    }
+})
+
+document.getElementById("login").addEventListener("click", (event) => {
+    axios.post("http://localhost:4000/login?username=steve&password=12345")
+    .then(response => { console.log(response); r.textContent = response.data })
+    .catch(error => { console.log(error) });
+})
+
+document.getElementById("signup").addEventListener("click", (event) => {
+    axios.post("http://localhost:4000/signup?username=steve&password=12345")
+    .then(response => { console.log(response); r.textContent = response.data })
+    .catch(error => { console.log(error) });
+})
+
+document.getElementById("connect").addEventListener("click", (event) => {
+    socket = io("http://localhost:4001/");
+    socket.on("roomid", (id) => {
+        re.textContent = "";
+        inRoom = true;
+        ridl.textContent = id;
+        lr.classList.remove("unclickable");
+        jr.classList.add("unclickable");
+    }); // in the game - invoke a function to put player in room
+    socket.on("roomjoinfail", (id) => { re.textContent = `failed to join room: ${id}` });
+    socket.on("leaveroom", () => {
+        ridl.textContent = "00000";
+        inRoom = false;
+    })
+})  
+
+document.getElementById("disconnect").addEventListener("click", (event) => {
+    socket.close();
+})
+
+document.getElementById("makeroom").addEventListener("click", (event) => {
+    socket.emit("makeroom");
+})
+
+document.getElementById("joinroom").addEventListener("click", (event) => {
+    let roomid = document.getElementById("roomid").value;
+    console.log(roomid);
+    socket.emit("joinroom", roomid);
+})
+
+document.getElementById("leaveroom").addEventListener("click", (event) => {
+    if(socket) {
+        socket.emit("leaveroom", ridl.textContent);
+    }
+})
+
+let live_data = document.getElementById("live-data");
+
+setInterval(() => {
+    if(socket) {
+        if(socket.connected) {
+
+            live_data.innerText = `connected?: true`;
+            live_data.classList.remove("ld-false");
+            live_data.classList.add("ld-true");
+
+            document.getElementById("connect").classList.add("connection-valid");
+            d.classList.remove("unclickable");
+            if(!inRoom) {
+                [mr, jr].forEach(e => { e.classList.remove("unclickable") });
+                rid.classList.remove("no-input");
+                lr.classList.add("unclickable");
+            } else {
+                [mr, jr].forEach(e => { e.classList.add("unclickable") });
+                rid.classList.add("no-input");
+                lr.classList.remove("unclickable");
+            }
+        } else {
+
+          live_data.innerText = `connected?: false`;
+          live_data.classList.remove("ld-true");
+          live_data.classList.add("ld-false");
+
+          document.getElementById("connect").classList.remove("connection-valid");
+          [d, mr, jr, lr].forEach(e => {e.classList.add("unclickable")});
+          rid.classList.add("no-input");
+        }          
+    }
+}, 500);
+
+
+
+document.getElementById("login-button").addEventListener("click", (e) => {
+  if(!isLoginOpen) {
+    isLoginOpen = true;
+    ld.showModal();
+  }
+})
+
+document.getElementById("online-button").addEventListener("click", (e) => {
+  if(!isOnlineOpen) {
+    isOnlineOpen = true;
+    od.showModal();
+  }
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 setInterval(() => {
   // console.log(renderer)
