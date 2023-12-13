@@ -21,6 +21,8 @@ let meshToRemove = [];
 let allowMovement = true;
 let allowCamera = true;
 
+let onlinePlayerID;
+
 
 let defaultSettings = {
   "volume": "20",
@@ -895,7 +897,9 @@ document.getElementById("signup").addEventListener("click", (event) => {
 
 document.getElementById("connect").addEventListener("click", (event) => {
     socket = io("http://localhost:4001/");
-    socket.on("roomid", (id) => {
+    socket.on("roomid", (id, playerID) => {
+      console.log(playerID)
+        onlinePlayerID = playerID;
         re.textContent = "";
         inRoom = true;
         ridl.textContent = id;
@@ -906,6 +910,9 @@ document.getElementById("connect").addEventListener("click", (event) => {
     socket.on("leaveroom", () => {
         ridl.textContent = "00000";
         inRoom = false;
+    })
+    socket.on("allpositions", (players) => {
+      console.log(players)
     })
 })  
 
@@ -935,7 +942,7 @@ setInterval(() => {
     if(socket) {
         if(socket.connected) {
 
-            live_data.innerText = `connected?: true`;
+            live_data.innerText = `connected?: true  ||  player: ${onlinePlayerID}`;
             live_data.classList.remove("ld-false");
             live_data.classList.add("ld-true");
 
@@ -952,7 +959,7 @@ setInterval(() => {
             }
         } else {
 
-          live_data.innerText = `connected?: false`;
+          live_data.innerText = `connected?: false  ||  player: ${onlinePlayerID}`;
           live_data.classList.remove("ld-true");
           live_data.classList.add("ld-false");
 
@@ -994,7 +1001,11 @@ document.getElementById("online-button").addEventListener("click", (e) => {
 
 
 
-
+let sendPlayerPositions = () => {
+  if(onlinePlayerID != undefined) {
+    socket.emit("playerposition", ridl.innerText, onlinePlayerID, PLAYER.body.position)
+  }
+}
 
 
 
@@ -1007,6 +1018,8 @@ document.getElementById("online-button").addEventListener("click", (e) => {
 
 
 setInterval(() => {
+  // console.log("online_player_id:", onlinePlayerID);
+  // console.log("room_id:", ridl.innerText)
   // console.log(renderer)
   // console.log("\nPLAYER VELOCITY:\n", "x:", PLAYER.body.velocity.x.toFixed(1), "y:", PLAYER.body.velocity.y.toFixed(1), "z:", PLAYER.body.velocity.z.toFixed(1))
 }, 500);
@@ -1021,7 +1034,7 @@ const animate = () => {
     playerInputs();
     updateGame();
     updateProjectiles();
-    
+    sendPlayerPositions();
   
     bodiesToRemove.forEach(removeBodies);
     meshToRemove.forEach(removeMesh);
