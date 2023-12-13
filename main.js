@@ -676,6 +676,44 @@ let updateProjectiles = () => {
 
 
 
+let onlinePlayers = [];
+
+let makeOnlinePlayer = (playerID, position) => {
+  let pg = new THREE.BoxGeometry(2, 4, 2);
+  let pm = new THREE.MeshBasicMaterial({ color: parryLevel[playerID] });
+  let pMesh = new THREE.Mesh(pg, pm);
+  pMesh.position.set(position.x, position.y, position.z)
+  scene.add(pMesh);
+  onlinePlayers.push({playerID, mesh: pMesh});
+}
+
+let updateOnlinePlayers = (players) => {
+  for(let i = 0; i < players.length; i++) {
+    if(onlinePlayerID != i) {
+      if(onlinePlayers[i] == undefined) {
+        makeOnlinePlayer(i, players[i].position);
+      } else {
+        onlinePlayers[i].mesh.position.set(players[i].position.x, players[i].position.y, players[i].position.z)
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 document.getElementById("tab-close-button").addEventListener("click", (e) => { toggleTab(e) })
@@ -912,11 +950,17 @@ document.getElementById("connect").addEventListener("click", (event) => {
         inRoom = false;
     })
     socket.on("allpositions", (players) => {
-      console.log(players)
+      // console.log(players)
+      updateOnlinePlayers(players);
     })
 })  
 
+window.onclose = () => {
+  socket.emit("playerdisconnect", ridl.innerText, onlinePlayerID);
+}
+
 document.getElementById("disconnect").addEventListener("click", (event) => {
+    socket.emit("playerdisconnect", ridl.innerText, onlinePlayerID);
     socket.close();
 })
 
