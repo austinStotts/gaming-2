@@ -676,7 +676,7 @@ let updateProjectiles = () => {
 
 
 
-let onlinePlayers = [];
+let onlinePlayers = {};
 
 let makeOnlinePlayer = (playerID, position) => {
   let pg = new THREE.BoxGeometry(2, 4, 2);
@@ -684,16 +684,23 @@ let makeOnlinePlayer = (playerID, position) => {
   let pMesh = new THREE.Mesh(pg, pm);
   pMesh.position.set(position.x, position.y, position.z)
   scene.add(pMesh);
-  onlinePlayers.push({playerID, mesh: pMesh});
+  onlinePlayers[playerID] = {playerID, mesh: pMesh};
 }
 
 let updateOnlinePlayers = (players) => {
+  // console.log(players)
   for(let i = 0; i < players.length; i++) {
-    if(onlinePlayerID != i) {
-      if(onlinePlayers[i] == undefined) {
-        makeOnlinePlayer(i, players[i].position);
+    if(onlinePlayers[i] != undefined) {
+      if(i == onlinePlayerID) { // skip if own player
+
       } else {
         onlinePlayers[i].mesh.position.set(players[i].position.x, players[i].position.y, players[i].position.z)
+      }
+    } else {
+      if(i == onlinePlayerID) { // skip if own player
+
+      } else {
+        makeOnlinePlayer(i, players[i].position);
       }
     }
   }
@@ -1062,6 +1069,8 @@ let sendPlayerPositions = () => {
 
 
 setInterval(() => {
+  // onlinePlayers.forEach(player => { console.log(player) })
+  console.log(Object.keys(onlinePlayers))
   // console.log("online_player_id:", onlinePlayerID);
   // console.log("room_id:", ridl.innerText)
   // console.log(renderer)
