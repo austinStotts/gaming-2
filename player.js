@@ -69,7 +69,7 @@ export default class Player {
         direction.normalize();
         let initialVelocity = new CANNON.Vec3();
         direction.scale(this.projectile_speed, initialVelocity);
-    
+        // console.log(pMesh)
         pBody.userData = { mesh: pMesh, cc: "playerProjectile", createdAt: Date.now(), owner: this.id }
         pBody.velocity.copy(initialVelocity);
     

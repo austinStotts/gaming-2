@@ -548,7 +548,12 @@ class TrainingBot {
     world.addBody(pBody);
     pMesh.position.copy(pBody.position);
     scene.add(pMesh);
-    projectiles.push({mesh: pMesh, body: pBody, deleteAfter: 3000});
+    if(onlinePlayerID != undefined) {
+      projectiles.push({mesh: pMesh, body: pBody, deleteAfter: 3000, owner: "bot"});
+    } else {
+      projectiles.push({mesh: pMesh, body: pBody, deleteAfter: 3000, owner: null});
+    }
+    
     
     let direction = new CANNON.Vec3();
     let target = new CANNON.Vec3(camera.position.x, camera.position.y, camera.position.z)
@@ -651,7 +656,7 @@ setInterval(() => {
   parry_cooldown.value = p_value;
 }, 50)
 
-
+let projectiledToRemove = [];
 
 let updateProjectiles = () => {
   if(projectiles.length > 0) {
@@ -659,12 +664,12 @@ let updateProjectiles = () => {
       projectiles[i].mesh.position.copy(projectiles[i].body.position);
       // console.log(projectiles[0].body.position)
       if(projectiles[i].body.userData.createdAt + projectiles[i].deleteAfter < Date.now()) {
+        if(socket) { socket.emit("deleteprojectile", {pid: `p${onlinePlayerID}-${projectiles[i].mesh.uuid}`}, ridl.textContent) }
         scene.remove(projectiles[i].mesh);
         world.removeBody(projectiles[i].body);
         projectiles.splice(i, 1);
         i--;
       }
-      
     }
   }
 }
@@ -960,6 +965,7 @@ document.getElementById("connect").addEventListener("click", (event) => {
       // console.log(players)
       updateOnlinePlayers(players);
     })
+    socket.on("roomprojectiles", rps => { console.log(rps) }) // actually create and move said projectiles... the hard part... maybe?
 })  
 
 window.onclose = () => {
@@ -1058,10 +1064,30 @@ let sendPlayerPositions = () => {
   }
 }
 
+// cannot send whole CANNON objects and THREE meshes 
+// just send position and metadata as an object
+// and each user will have to make the projectiles on thier own
+
+// okay new issue... 
+// every frame the same projectiles get added to the server,
+// and never get deleted
+// and even 1 projectile will be 100s after a couple seconds
+
+let sendProjectilePositions = () => {
+  if(onlinePlayerID != undefined) {
+    let projectilesToEmit = [];
+    projectiles.forEach(p => {
+      projectilesToEmit.push({position: p.body.position, pid: `p${onlinePlayerID}-${p.mesh.uuid}`, owner: onlinePlayerID})
+    })
+    socket.emit("projectiles", projectilesToEmit, onlinePlayerID, ridl.textContent)
+  }
+}
 
 
 
 
+// let a = ["hello", "tall", "cat"];
+// console.log({...a})
 
 
 
@@ -1088,6 +1114,7 @@ const animate = () => {
     updateGame();
     updateProjectiles();
     sendPlayerPositions();
+    sendProjectilePositions();
   
     bodiesToRemove.forEach(removeBodies);
     meshToRemove.forEach(removeMesh);
