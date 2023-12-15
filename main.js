@@ -888,11 +888,35 @@ getPlayerSettings();
 
 
 
+let currentRoomProjectiles = {}
 
+let makeRoomProjectile = (p) => {
+  let pg = new THREE.SphereGeometry(0.5);
+  let pm = new THREE.MeshBasicMaterial({ color: 0x00ffff })
+  let pMesh = new THREE.Mesh(pg,pm);
+  pMesh.position.set(p.x,p.y,p.z);
+  scene.add(pMesh);
+  return pMesh;
+}
 
-
-
-
+let updateRoomProjectiles = (rps) => {
+  let keys = Object.keys(rps);
+  // console.log(rps)
+  for(let i = 0; i < keys.length; i++) {
+    // console.log("projectile ->",rps[keys[i]])
+    console.log("this PROJ UUID -> ",rps[keys[i]])
+    if(currentRoomProjectiles[rps[keys[i]].pid] != undefined) {
+      // use current projectile and update position
+      console.log("!IT WAS ALREADY DEFINED!")
+      currentRoomProjectiles[rps[keys[i]].pid].mesh.position.set(rps[keys[i]].position.x,rps[keys[i]].position.y,rps[keys[i]].position.z)
+    } else {
+      // make a new projectile and update its position
+      console.log(rps[keys[i]].pid)
+      currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeRoomProjectile(rps[keys[i]].position)}
+    }
+  }
+  Object.keys(currentRoomProjectiles).forEach(pid => { if(rps[pid] == undefined) {scene.remove(currentRoomProjectiles[pid].mesh); delete currentRoomProjectiles[pid]; } })
+}
 
 
 
@@ -985,7 +1009,7 @@ document.getElementById("connect").addEventListener("click", (event) => {
       // console.log(players)
       updateOnlinePlayers(players);
     })
-    socket.on("roomprojectiles", rps => { console.log(rps) }) // actually create and move said projectiles... the hard part... maybe?
+    socket.on("roomprojectiles", rps => { updateRoomProjectiles(rps) }) // actually create and move said projectiles... the hard part... maybe?
 })  
 
 window.onclose = () => {
