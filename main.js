@@ -189,7 +189,7 @@ let onKeyDown = (event) => {
       keys.D = true;
       break;
     case currentSettings.keybinds.reload:
-      reload(PLAYER);
+      // reload(PLAYER);
       break
     case currentSettings.keybinds.jump:
       jump();
@@ -406,7 +406,7 @@ let handleMouseDown = (button) => {
         PLAYER.dodge(velocity, checkForWall(PLAYER.body.position, velocity.normalize(), PLAYER.dodge_distance))
       }
       
-    } else if(button == currentSettings.keybinds.shoot[2] && PLAYER.time_since_last_shoot + PLAYER.shoot_cooldown < Date.now()) {
+    } else if(button == currentSettings.keybinds.shoot[2] && PLAYER.time_since_last_shoot + PLAYER.shoot_cooldown < Date.now() && !isTabOpen) {
       let playerProjectile = PLAYER.createProjectile(camera);
       projectiles.push(playerProjectile);
       scene.add(playerProjectile.mesh);
@@ -647,6 +647,17 @@ parry_cooldown.textFormat = (v) => {
 };
 pcw.appendChild(parry_cooldown);
 
+let rcw = document.getElementById("reload-cooldown-wrapper");
+const reload_cooldown = document.createElement('circle-progress');
+reload_cooldown.classList.add("reload-circle");
+reload_cooldown.max = 100;
+reload_cooldown.value = 0;
+reload_cooldown.textFormat = (v) => {
+  if(v == 100) { return "[M0]" }
+  else { return ((PLAYER.shoot_cooldown/1000) - (v/100)*PLAYER.shoot_cooldown/1000).toFixed(1) + "s" }
+};
+rcw.appendChild(reload_cooldown);
+
 // update cooldowns
 setInterval(() => {
   let d_value = ((Date.now() - PLAYER.time_since_last_dodge) / PLAYER.dodge_cooldown) * 100;
@@ -654,6 +665,9 @@ setInterval(() => {
   
   let p_value = ((Date.now() - PLAYER.time_since_last_parry) / PLAYER.parry_cooldown) * 100;
   parry_cooldown.value = p_value;
+
+  let r_value = ((Date.now() - PLAYER.time_since_last_shoot) / PLAYER.shoot_cooldown) * 100;
+  reload_cooldown.value = r_value;
 }, 50)
 
 let projectiledToRemove = [];
@@ -741,6 +755,10 @@ let toggleTab = (event) => {
   } else {
     tabMenu.close();
     isTabOpen = false;
+    if(isSettingsOpen) { document.getElementById("settings-menu").close(); isSettingsOpen = false; }
+    if(isLoginOpen) { document.getElementById("login-dialog").close(); isLoginOpen = false; }
+    if(isOnlineOpen) { document.getElementById("online-dialog").close(); isOnlineOpen = false; }
+    if(isKeybindsOpen) { document.getElementById("keybinds-menu").close(); isKeybindsOpen = false; }
     toggleCursorLock();
   }
 }
@@ -907,6 +925,8 @@ let rid = document.getElementById("roomid");
 let jr = document.getElementById("joinroom");
 let lr = document.getElementById("leaveroom");
 let re = document.getElementById("room-errors");
+
+rid.addEventListener("keydown", (e) => { if(e.key == "Enter") { jr.click() }})
 
 ridl.addEventListener("click", () => {
     navigator.clipboard.writeText(ridl.textContent)

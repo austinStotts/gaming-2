@@ -1,6 +1,6 @@
 .cooldowns-wrapper {
     position: absolute;
-    right: 200px;
+    right: 100px;
     bottom: 50px;
     z-index: 110;
     display: block;
@@ -72,9 +72,36 @@
     stroke: dodgerblue;
 }
 
+.reload-cooldown-wrapper {
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    margin: 0px 5px;
+    /* background-color: rgb(255, 225, 225); */
+    border-radius: 50%;
+}
+
+.reload-circle {
+    z-index: 110;
+    width: 25px;
+}
+
+.reload-circle::part(base) {
+    width: 100px;
+    height: auto;
+    background-color: rgb(0, 0, 0);
+    border-radius: 50%;
+}
+
+.reload-circle::part(text) {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 26px;
+    stroke: dodgerblue;
+}
+
 #tab-menu {
     background-color: black;
-    border: 0px;
+    /* border: 0px; */
 }
 
 #tab-menu:focus {
@@ -84,6 +111,25 @@
 .tab-wrapper {
     font-family: 'Courier New', Courier, monospace;
     color: white;
+}
+
+#tab-menu {
+    border: 1px solid;
+    --angle: 0deg;
+    border-image: linear-gradient(var(--angle), rgb(253, 114, 255),rgb(114, 196, 255)) 1;
+    animation: 3s rotate linear infinite;
+}
+  
+@keyframes rotate {
+    to {
+        --angle: 360deg;
+    }
+}
+
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
 }
 
 .button {
@@ -117,7 +163,10 @@
 
 #settings-menu {
     background-color: black;
-    border: 0px;
+    border: 1px solid;
+    --angle: 0deg;
+    border-image: linear-gradient(var(--angle), rgb(255, 61, 61),rgb(255, 255, 93)) 1;
+    animation: 3s rotate linear infinite;
 }
 
 #settings-menu:focus {
@@ -206,7 +255,10 @@
 
 #keybinds-menu {
     background-color: black;
-    border: none;
+    border: 1px solid;
+    --angle: 0deg;
+    border-image: linear-gradient(var(--angle), rgb(99, 255, 164),rgb(255, 104, 169)) 1;
+    animation: 3s rotate linear infinite;
     width: 150px;
 }
 
@@ -341,14 +393,23 @@ button:hover {
     margin-left: 3px;
 }
 
+#login-dialog {
+    border: 1px solid;
+    --angle: 0deg;
+    border-image: linear-gradient(var(--angle), rgb(114, 255, 243),rgb(166, 255, 114)) 1;
+    animation: 3s rotate linear infinite;
+}
+
 .login-button-f:hover {
     
     cursor: pointer;
-    --angle: 0deg;
+    font-style: italic;
+    font-weight: 600;
+    /* --angle: 0deg;
     /* font-style: italic; */
-    border-radius: 3px !important;
+    /* border-radius: 3px !important;
     border-image: linear-gradient(var(--angle), rgb(253, 114, 255),rgb(114, 196, 255)) 1;
-    animation: 3s rotate linear infinite;
+    animation: 3s rotate linear infinite; */ 
 }
   
 @keyframes rotate {
@@ -375,7 +436,12 @@ button:hover {
 }
 
 
-
+#online-dialog {
+    border: 1px solid;
+    --angle: 0deg;
+    border-image: linear-gradient(var(--angle), rgb(255, 72, 72),rgb(255, 104, 190)) 1;
+    animation: 3s rotate linear infinite;
+}
 
 .online-input {
     width: 91px;
