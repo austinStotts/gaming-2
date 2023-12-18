@@ -566,3 +566,13 @@ button:hover {
     font-style: italic;
     text-decoration: underline;
 }
+
+#hp-label {
+    position: absolute;
+    z-index: 200;
+    bottom: 30px;
+    left: 50px;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 25px;
+}

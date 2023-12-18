@@ -10,6 +10,8 @@ export default class Player {
         this.speed = 0.1;
         this.acc = 20;
 
+        this.hp = 10;
+
         this.mesh;
         this.body;
 
@@ -69,11 +71,16 @@ export default class Player {
         direction.normalize();
         let initialVelocity = new CANNON.Vec3();
         direction.scale(this.projectile_speed, initialVelocity);
-        // console.log(pMesh)
+        
         pBody.userData = { mesh: pMesh, cc: "playerProjectile", createdAt: Date.now(), owner: this.id }
         pBody.velocity.copy(initialVelocity);
     
-        pBody.addEventListener("collide", (e) => {console.log(e); e.body.userData.createdAt -= 1000; e.target.userData.createdAt -= 1000; })
+        pBody.addEventListener("collide", (e) => {
+            console.log(e);
+            if(e.body.userData.cc == "onlineEnemyPlayer") { console.log(`player [${this.id}]   ->   player [${e.body.userData.playerID}]`) }
+            e.body.userData.createdAt -= 1000;
+            e.target.userData.createdAt -= 1000;
+          })
 
         return ({mesh: pMesh, body: pBody, deleteAfter: 3000});
     }
