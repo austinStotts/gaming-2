@@ -1068,14 +1068,31 @@ document.getElementById("leaveroom").addEventListener("click", (event) => {
 })
 
 let live_data = document.getElementById("live-data");
+// let ic = document.createElement("li");
+// ic.innerText = "connected: false";
+// ic.id = "data-connected-value"
+// ic.classList.add("data-list-item");
+// live_data.appendChild(ic);
+
+// let pn = document.createElement("li");
+// pn.textContent = onlinePlayerID;
+// pn.id = "data-playernumber-value"
+// pn.classList.add("data-list-item");
+// live_data.appendChild(id);
+
+let ldC = document.getElementById("ld-connected");
+let ldP = document.getElementById("ld-playernumber");
+let ldFPS = document.getElementById("ld-fps");
 
 setInterval(() => {
     if(socket) {
         if(socket.connected) {
 
-            live_data.innerText = `connected?: true  ||  player: ${onlinePlayerID}`;
-            live_data.classList.remove("ld-false");
-            live_data.classList.add("ld-true");
+            ldC.innerText = "connected: true";
+            ldC.classList.remove("ld-false");
+            ldC.classList.add("ld-true");
+
+            ldP.innerText = `player number: ${onlinePlayerID}`;
 
             document.getElementById("connect").classList.add("connection-valid");
             d.classList.remove("unclickable");
@@ -1090,9 +1107,11 @@ setInterval(() => {
             }
         } else {
 
-          live_data.innerText = `connected?: false  ||  player: ${onlinePlayerID}`;
-          live_data.classList.remove("ld-true");
-          live_data.classList.add("ld-false");
+          ldC.innerText = "connected: false";
+          ldC.classList.remove("ld-true");
+          ldC.classList.add("ld-false");
+
+          ldP.innerText = `player number: n/a`;
 
           document.getElementById("connect").classList.remove("connection-valid");
           [d, mr, jr, lr].forEach(e => {e.classList.add("unclickable")});
@@ -1177,6 +1196,11 @@ setInterval(() => {
   // console.log("\nPLAYER VELOCITY:\n", "x:", PLAYER.body.velocity.x.toFixed(1), "y:", PLAYER.body.velocity.y.toFixed(1), "z:", PLAYER.body.velocity.z.toFixed(1))
 }, 500);
 
+let start = Date.now();
+let frames = 0;
+setInterval(() => {
+  ldFPS.innerText = `μFPS: ${Math.trunc(frames / ((Date.now() - start)/1000))}`;
+}, 100)
 
 // Animate function
 const animate = () => {
@@ -1193,8 +1217,8 @@ const animate = () => {
     bodiesToRemove.forEach(removeBodies);
     meshToRemove.forEach(removeMesh);
       
-    
     renderer.render(scene, camera);
+    frames++;
 };
 
 setInterval(() => {
