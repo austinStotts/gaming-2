@@ -576,3 +576,18 @@ button:hover {
     font-family: 'Courier New', Courier, monospace;
     font-size: 25px;
 }
+
+#winner-banner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 100;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-weight: 800;
+    font-size: 40px;
+    color: rgb(255, 105, 105);
+    text-shadow: 2px 2px rgb(106, 176, 255);
+    text-wrap: nowrap;
+}

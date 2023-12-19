@@ -27,7 +27,7 @@ export default class Player {
         this.perfect_parry_window = 100;
 
         this.time_since_last_shoot = Date.now();
-        this.shoot_cooldown = 2000;
+        this.shoot_cooldown = 1500;
         this.projectile_speed = 100;
 
         this.move_player = this.move_player.bind(this);
@@ -64,6 +64,7 @@ export default class Player {
         let pBody = new CANNON.Body({ shape: pShape, mass: 1, linearDamping: 0.05 });
         pBody.position.set(this.body.position.x, this.body.position.y+3, this.body.position.z);
         pMesh.position.copy(pBody.position);
+        
 
         let target = new THREE.Vector3();
         camera.getWorldDirection(target);

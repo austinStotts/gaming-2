@@ -22,6 +22,7 @@ let allowMovement = true;
 let allowCamera = true;
 
 let onlinePlayerID;
+let onlineRoomID;
 
 
 let defaultSettings = {
@@ -627,8 +628,16 @@ let reflectProjectile = (projectile, perfect=false) => {
 
 
 
-let updateHP = () => {
+let updateHP = (p="n/a") => {
   document.getElementById("hp-label").textContent = PLAYER.hp;
+  if(PLAYER.hp <= 0) {
+    // show win screen
+    console.log(`player ${onlinePlayerID} loses`);
+    socket.emit("showwinner", onlineRoomID, p)
+    setTimeout(() => {
+      socket.emit("resetroom", onlineRoomID);
+    },3000)
+  }
 }
 
 
@@ -691,7 +700,7 @@ let updateProjectiles = () => {
       projectiles[i].mesh.position.copy(projectiles[i].body.position);
       // console.log(projectiles[0].body.position)
       if(projectiles[i].body.userData.createdAt + projectiles[i].deleteAfter < Date.now()) {
-        if(socket) { socket.emit("deleteprojectile", {pid: `p${onlinePlayerID}-${projectiles[i].mesh.uuid}`}, ridl.textContent) }
+        if(socket) { socket.emit("deleteprojectile", {pid: `p${onlinePlayerID}-${projectiles[i].mesh.uuid}`}, onlineRoomID) }
         scene.remove(projectiles[i].mesh);
         world.removeBody(projectiles[i].body);
         projectiles.splice(i, 1);
@@ -706,7 +715,7 @@ let updateProjectiles = () => {
 
 
 let sendHit = (player, pid) => {
-  socket.emit("playerhit", ridl.textContent, onlinePlayerID, player, pid)
+  socket.emit("playerhit", onlineRoomID, onlinePlayerID, player, pid)
 }
 
 
@@ -918,13 +927,14 @@ getPlayerSettings();
 
 let currentRoomProjectiles = {}
 
-let makeRoomProjectile = (p, pid, pl) => {
+let makeRoomProjectile = (p, pid, pl, owner) => {
   let pg = new THREE.SphereGeometry(0.5);
   let pm = new THREE.MeshBasicMaterial({ color: parryLevel[pl] })
   let pMesh = new THREE.Mesh(pg,pm);
   pMesh.position.set(p.x,p.y,p.z);
   pMesh.userData.pid = pid;
   pMesh.userData.parryLevel = pl;
+  pMesh.userData.owner = owner;
   scene.add(pMesh);
   return pMesh;
 }
@@ -936,7 +946,7 @@ let updateRoomProjectiles = (rps) => {
     if(currentRoomProjectiles[rps[keys[i]].pid] != undefined) {
       currentRoomProjectiles[rps[keys[i]].pid].mesh.position.set(rps[keys[i]].position.x,rps[keys[i]].position.y,rps[keys[i]].position.z)
     } else { // new Proj
-      currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeRoomProjectile(rps[keys[i]].position, rps[keys[i]].pid, rps[keys[i]].parryLevel)}
+      currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeRoomProjectile(rps[keys[i]].position, rps[keys[i]].pid, rps[keys[i]].parryLevel, rps[keys[i]].owner)}
     }
   }
   Object.keys(currentRoomProjectiles).forEach(pid => { if(rps[pid] == undefined) {scene.remove(currentRoomProjectiles[pid].mesh); delete currentRoomProjectiles[pid]; } })
@@ -977,7 +987,7 @@ let re = document.getElementById("room-errors");
 rid.addEventListener("keydown", (e) => { if(e.key == "Enter") { jr.click() }})
 
 ridl.addEventListener("click", () => {
-    navigator.clipboard.writeText(ridl.textContent)
+    navigator.clipboard.writeText(onlineRoomID)
 });
 
 
@@ -1022,6 +1032,7 @@ document.getElementById("connect").addEventListener("click", (event) => {
       re.textContent = "";
       inRoom = true;
       ridl.textContent = id;
+      onlineRoomID = id;
       lr.classList.remove("unclickable");
       jr.classList.add("unclickable");
     }); // in the game - invoke a function to put player in room
@@ -1040,6 +1051,21 @@ document.getElementById("connect").addEventListener("click", (event) => {
       if(playerID == onlinePlayerID) {
         onlinePlayerCollision(pid);
       }
+    })
+    socket.on("reset", (pps) => {
+      console.log("RESETING ROOM")
+      PLAYER.hp = 10;
+      updateHP();
+      PLAYER.body.position.set(pps[onlinePlayerID][0],pps[onlinePlayerID][1],pps[onlinePlayerID][2]);
+    })
+    socket.on("winner", (playerID) => {
+      let w = document.getElementById("winner-banner");
+      w.hidden = false;
+      w.innerText = `PLAYER ${playerID} WINS`
+      setTimeout(() => {
+        w.hidden = true;
+        w.innerText = ""
+      }, 2900);
     })
   })  
 
@@ -1064,7 +1090,7 @@ document.getElementById("joinroom").addEventListener("click", (event) => {
 
 document.getElementById("leaveroom").addEventListener("click", (event) => {
     if(socket) {
-        socket.emit("leaveroom", ridl.textContent);
+        socket.emit("leaveroom", onlineRoomID);
     }
 })
 
@@ -1171,8 +1197,8 @@ let onlinePlayerCollision = (pid) => {
 
   } else {
     console.log('player hit!');
-    PLAYER.hp -= currentRoomProjectiles[pid].mesh.userData.parryLevel;
-    updateHP();
+    PLAYER.hp -= Number(currentRoomProjectiles[pid].mesh.userData.parryLevel) +1;
+    updateHP(currentRoomProjectiles[pid].mesh.userData.owner);
     // take damage / delete projectile
   }
 }
@@ -1205,7 +1231,7 @@ let sendProjectilePositions = () => {
     projectiles.forEach(p => {
       projectilesToEmit.push({position: p.body.position, pid: `p${onlinePlayerID}-${p.mesh.uuid}`, owner: onlinePlayerID, parryLevel: p.mesh.userData.parryLevel})
     })
-    socket.emit("projectiles", projectilesToEmit, onlinePlayerID, ridl.textContent)
+    socket.emit("projectiles", projectilesToEmit, onlinePlayerID, onlineRoomID)
   }
 }
 
@@ -1233,7 +1259,7 @@ let start = Date.now();
 let frames = 0;
 setInterval(() => {
   // ldFPS.innerText = `μFPS: ${Math.trunc(frames / ((Date.now() - start)/1000))}`;
-  ldFPS.innerText = frames;
+  ldFPS.innerText = "μFPS: "+frames;
   frames = 0;
 }, 1000)
 
