@@ -54,11 +54,11 @@ export default class Player {
         this.hp = this.hp - this.armor.take_damage(n);
     }
 
-    createProjectile (camera) {
+    createProjectile (camera, parryLevel=0) {
         let pGeo = new THREE.SphereGeometry(0.5);
         let pMat = new THREE.MeshBasicMaterial({ color: 0x2196F3 });
         let pMesh = new THREE.Mesh(pGeo, pMat);
-        pMesh.userData.parryLevel = 0;
+        pMesh.userData.parryLevel = parryLevel;
     
         let pShape = new CANNON.Sphere(1);
         let pBody = new CANNON.Body({ shape: pShape, mass: 1, linearDamping: 0.05 });

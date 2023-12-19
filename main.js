@@ -705,8 +705,8 @@ let updateProjectiles = () => {
 
 
 
-let sendHit = (player) => {
-  socket.emit("playerhit", ridl.textContent, onlinePlayerID, player)
+let sendHit = (player, pid) => {
+  socket.emit("playerhit", ridl.textContent, onlinePlayerID, player, pid)
 }
 
 
@@ -722,7 +722,7 @@ let makeOnlinePlayer = (playerID, position) => {
   let pBody = new CANNON.Body({ shape: ps, mass: 50 });
   pBody.userData = { cc: "onlineEnemyPlayer", playerID: playerID };
   pBody.addEventListener("collide", (e) => {
-    if(e.body.userData.cc == "playerProjectile") { sendHit(e.target.userData.playerID);}
+    if(e.body.userData.cc == "playerProjectile") { sendHit(e.target.userData.playerID, `p${onlinePlayerID}-${e.body.userData.mesh.uuid}`); e.body.userData.createdAt -= 3000; }
     // if(e.target.userData.cc ==)
   })
 
@@ -918,29 +918,25 @@ getPlayerSettings();
 
 let currentRoomProjectiles = {}
 
-let makeRoomProjectile = (p) => {
+let makeRoomProjectile = (p, pid, pl) => {
   let pg = new THREE.SphereGeometry(0.5);
-  let pm = new THREE.MeshBasicMaterial({ color: 0x00ffff })
+  let pm = new THREE.MeshBasicMaterial({ color: parryLevel[pl] })
   let pMesh = new THREE.Mesh(pg,pm);
   pMesh.position.set(p.x,p.y,p.z);
+  pMesh.userData.pid = pid;
+  pMesh.userData.parryLevel = pl;
   scene.add(pMesh);
   return pMesh;
 }
 
 let updateRoomProjectiles = (rps) => {
-  let keys = Object.keys(rps);
   // console.log(rps)
-  for(let i = 0; i < keys.length; i++) {
-    // console.log("projectile ->",rps[keys[i]])
-    // console.log("this PROJ UUID -> ",rps[keys[i]])
+  let keys = Object.keys(rps);
+  for(let i = 0; i < keys.length; i++) { // update Proj
     if(currentRoomProjectiles[rps[keys[i]].pid] != undefined) {
-      // use current projectile and update position
-      // console.log("!IT WAS ALREADY DEFINED!")
       currentRoomProjectiles[rps[keys[i]].pid].mesh.position.set(rps[keys[i]].position.x,rps[keys[i]].position.y,rps[keys[i]].position.z)
-    } else {
-      // make a new projectile and update its position
-      // console.log(rps[keys[i]].pid)
-      currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeRoomProjectile(rps[keys[i]].position)}
+    } else { // new Proj
+      currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeRoomProjectile(rps[keys[i]].position, rps[keys[i]].pid, rps[keys[i]].parryLevel)}
     }
   }
   Object.keys(currentRoomProjectiles).forEach(pid => { if(rps[pid] == undefined) {scene.remove(currentRoomProjectiles[pid].mesh); delete currentRoomProjectiles[pid]; } })
@@ -1039,7 +1035,12 @@ document.getElementById("connect").addEventListener("click", (event) => {
       updateOnlinePlayers(players);
     })
     socket.on("roomprojectiles", rps => { updateRoomProjectiles(rps) }) // actually create and move said projectiles... the hard part... maybe?
-    socket.on("takehit", (playerID) => { console.log(`take hit: ${playerID}`); if(playerID == onlinePlayerID) { PLAYER.hp -= 1; updateHP() }})
+    socket.on("takehit", (playerID, pid) => {
+      console.log(`take hit: ${playerID}`);
+      if(playerID == onlinePlayerID) {
+        onlinePlayerCollision(pid);
+      }
+    })
   })  
 
 window.onclose = () => {
@@ -1142,7 +1143,39 @@ document.getElementById("online-button").addEventListener("click", (e) => {
 
 
 
+let onlinePlayerCollision = (pid) => {
+  socket.emit("deleteprojectile", pid, ridl.innerText);
+  if(PLAYER.time_since_last_parry + PLAYER.perfect_parry_window > Date.now()) {
+    // if(true) {
+    console.log("perfect!");
+    // reflect projectile / must be perfect parry to reflect again
+    // reflectProjectile(event.body, true);
 
+    // fire a new projectile with a new parry level
+    // console.log(currentRoomProjectiles[pid])
+    let p = PLAYER.createProjectile(camera, currentRoomProjectiles[pid].mesh.userData.parryLevel+1);
+    scene.add(p.mesh);
+    world.addBody(p.body);
+    projectiles.push(p);
+
+  } else if(PLAYER.time_since_last_parry + PLAYER.parry_window > Date.now()) {
+    console.log("parry!");
+    // reflect projectile
+    // reflectProjectile(event.body, false);
+
+    // fire a new projectile with a new parry level
+    let p = PLAYER.createProjectile(camera, currentRoomProjectiles[pid].mesh.userData.parryLevel);
+    scene.add(p.mesh);
+    world.addBody(p.body);
+    projectiles.push(p);
+
+  } else {
+    console.log('player hit!');
+    PLAYER.hp -= currentRoomProjectiles[pid].mesh.userData.parryLevel;
+    updateHP();
+    // take damage / delete projectile
+  }
+}
 
 
 
@@ -1170,7 +1203,7 @@ let sendProjectilePositions = () => {
   if(onlinePlayerID != undefined) {
     let projectilesToEmit = [];
     projectiles.forEach(p => {
-      projectilesToEmit.push({position: p.body.position, pid: `p${onlinePlayerID}-${p.mesh.uuid}`, owner: onlinePlayerID})
+      projectilesToEmit.push({position: p.body.position, pid: `p${onlinePlayerID}-${p.mesh.uuid}`, owner: onlinePlayerID, parryLevel: p.mesh.userData.parryLevel})
     })
     socket.emit("projectiles", projectilesToEmit, onlinePlayerID, ridl.textContent)
   }
@@ -1199,8 +1232,10 @@ setInterval(() => {
 let start = Date.now();
 let frames = 0;
 setInterval(() => {
-  ldFPS.innerText = `μFPS: ${Math.trunc(frames / ((Date.now() - start)/1000))}`;
-}, 100)
+  // ldFPS.innerText = `μFPS: ${Math.trunc(frames / ((Date.now() - start)/1000))}`;
+  ldFPS.innerText = frames;
+  frames = 0;
+}, 1000)
 
 // Animate function
 const animate = () => {
