@@ -744,25 +744,32 @@ let makeOnlinePlayer = (playerID, position) => {
 
 let updateOnlinePlayers = (players) => {
   // console.log(players)
-  for(let i = 0; i < players.length; i++) {
-    if(onlinePlayers[i] != undefined) {
-      if(i == onlinePlayerID) { // skip if own player
+  let pkeys = Object.keys(players);
+  for(let i = 0; i < pkeys.length; i++) {
+    if(onlinePlayers[pkeys[i]] != undefined) {
+      if(pkeys[i] == onlinePlayerID) { // skip if own player
 
       } else {
-        onlinePlayers[i].mesh.position.set(players[i].position.x, players[i].position.y, players[i].position.z);
-        onlinePlayers[i].body.position.set(players[i].position.x, players[i].position.y, players[i].position.z);
+        onlinePlayers[pkeys[i]].mesh.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
+        onlinePlayers[pkeys[i]].body.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
       }
     } else {
-      if(i == onlinePlayerID) { // skip if own player
+      if(pkeys[i] == onlinePlayerID) { // skip if own player
 
       } else {
-        makeOnlinePlayer(i, players[i].position);
+        makeOnlinePlayer(pkeys[i], players[pkeys[i]].position);
       }
     }
   }
 }
 
-
+let removeAllOnlinePlayers = () => {
+  Object.keys(onlinePlayers).forEach(player => {
+    scene.remove(onlinePlayers[player].mesh);
+    world.removeBody(onlinePlayers[player].body);
+  })
+  onlinePlayers = {};
+}
 
 
 
@@ -1040,6 +1047,7 @@ document.getElementById("connect").addEventListener("click", (event) => {
     socket.on("leaveroom", () => {
         ridl.textContent = "00000";
         inRoom = false;
+        onlinePlayerID = undefined;
     })
     socket.on("allpositions", (players) => {
       // console.log(players)
@@ -1067,6 +1075,7 @@ document.getElementById("connect").addEventListener("click", (event) => {
         w.innerText = ""
       }, 2900);
     })
+    socket.on("removeplayer", (playerID) => { console.log("REMOVIN G PLAYER", playerID); scene.remove(onlinePlayers[playerID].mesh); world.removeBody(onlinePlayers[playerID].body); delete onlinePlayers[playerID]})
   })  
 
 window.onclose = () => {
@@ -1089,9 +1098,12 @@ document.getElementById("joinroom").addEventListener("click", (event) => {
 })
 
 document.getElementById("leaveroom").addEventListener("click", (event) => {
-    if(socket) {
-        socket.emit("leaveroom", onlineRoomID);
-    }
+  if(Object.keys(onlinePlayers).length > 0) {
+    removeAllOnlinePlayers();
+  }
+  if(socket) {
+      socket.emit("leaveroom", onlineRoomID, onlinePlayerID);
+  }
 })
 
 let live_data = document.getElementById("live-data");
@@ -1224,7 +1236,6 @@ let sendPlayerPositions = () => {
 // every frame the same projectiles get added to the server,
 // and never get deleted
 // and even 1 projectile will be 100s after a couple seconds
-
 let sendProjectilePositions = () => {
   if(onlinePlayerID != undefined) {
     let projectilesToEmit = [];
