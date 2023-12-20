@@ -144,6 +144,13 @@ let playerCollision = (event) => {
       reflectProjectile(event.body, false);
     } else {
       console.log('player hit!');
+      let damage = document.getElementById("damage");
+      damage.classList.add("damage");
+      damage.hidden = false;
+      setTimeout(() => {
+        damage.classList.remove("damage");
+        damage.hidden = true;
+      }, 250);
       // take damage / delete projectile
     }
   } else if(event.body.userData.cc == "floor") {
@@ -460,7 +467,7 @@ floor.position.set(0,0,0);
 world.addBody(floor);
 
 const floorGeometry = new THREE.BoxGeometry(1000,1000,0,100,100);
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: true });
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x8DC9AB, wireframe: false });
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
 floorMesh.quaternion.copy(floor.quaternion);
 floorMesh.position.copy(floor.position);
@@ -589,7 +596,7 @@ botMesh.position.copy(botBody.position);
 scene.add(botMesh);
 world.addBody(botBody);
 
-// let bot = new TrainingBot(botMesh, botBody);
+let bot = new TrainingBot(botMesh, botBody);
 
 
 
@@ -1076,6 +1083,9 @@ document.getElementById("connect").addEventListener("click", (event) => {
       }, 2900);
     })
     socket.on("removeplayer", (playerID) => { console.log("REMOVIN G PLAYER", playerID); scene.remove(onlinePlayers[playerID].mesh); world.removeBody(onlinePlayers[playerID].body); delete onlinePlayers[playerID]})
+    // socket.on("pong", (ms) => {
+    //   ldPing.innerText = `ping: ${ms}ms`;
+    // })
   })  
 
 window.onclose = () => {
@@ -1122,10 +1132,20 @@ let live_data = document.getElementById("live-data");
 let ldC = document.getElementById("ld-connected");
 let ldP = document.getElementById("ld-playernumber");
 let ldFPS = document.getElementById("ld-fps");
+let ldPing = document.getElementById("ld-ping");
+
 
 setInterval(() => {
     if(socket) {
         if(socket.connected) {
+
+          const startms = Date.now();
+
+          // volatile, so the packet will be discarded if the socket is not connected
+          socket.volatile.emit("ping", () => {
+            const latency = Date.now() - startms;
+            ldPing.innerText = `ping: ${latency}ms`
+          });
 
             ldC.innerText = "connected: true";
             ldC.classList.remove("ld-false");
@@ -1211,6 +1231,13 @@ let onlinePlayerCollision = (pid) => {
     console.log('player hit!');
     PLAYER.hp -= Number(currentRoomProjectiles[pid].mesh.userData.parryLevel) +1;
     updateHP(currentRoomProjectiles[pid].mesh.userData.owner);
+    // let damage = document.getElementById("damage");
+    // damage.classList.add("damage");
+    // damage.hidden = false;
+    // setTimeout(() => {
+    //   damage.classList.remove("damage");
+    //   damage.hidden = true;
+    // }, 300);
     // take damage / delete projectile
   }
 }
