@@ -1031,7 +1031,7 @@ document.getElementById("signup").addEventListener("click", (event) => {
 })
 
 document.getElementById("connect").addEventListener("click", (event) => {
-    socket = io("http://34.239.48.37/socket/");
+    socket = io("http://34.239.48.37/");
     socket.on("roomid", (id, playerID) => {
       console.log(socket)
       // console.log(playerID)
