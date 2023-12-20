@@ -318,15 +318,22 @@
     background-color: black;
     border: 1px dashed grey;
     padding: 1px 3px 1px 3px;
-}
-
-.ld-true {
-    color: rgb(19, 255, 39);
+    
 }
 
 .ld-false {
-    color: rgb(255, 53, 38);
+    color: rgb(255, 53, 38) !important;
 }
+
+.live-data>li {
+    color: rgb(237, 152, 237);
+}
+
+.ld-true {
+    color: rgb(19, 255, 39) !important;
+}
+
+
 
 
 

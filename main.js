@@ -540,7 +540,9 @@ class TrainingBot {
     this.speed = 100;
 
     setInterval(() => {
-      this.shootProjectile();
+      if(onlinePlayerID == undefined) {
+        this.shootProjectile();
+      }
     }, this.fr)
   }
 
