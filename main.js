@@ -6,7 +6,7 @@ import 'js-circle-progress';
 import Player from './player.js';
 import { acceleratedRaycast } from 'three-mesh-bvh'
 
-
+import createComplexPlayer from "./player_v2.js";
 
 // Global Variables
 let sensitivity = 0.0002;
@@ -43,21 +43,23 @@ let defaultSettings = {
 }
 
 let currentSettings = {
-  "volume": "20",
-  "sensitivity": "0.002",
-  "showHitboxes": "true",
-  "keybinds": {
-    "forward": "w",
-    "backward": "s",
-    "left": "a",
-    "right": "d",
-    "jump": " ",
-    "shoot": "mb0",
-    "dodge": "mb2",
-    "parry": "e",
-    "menu": "Tab"
-  }
+  keybinds: {}
 }
+//   "volume": "20",
+//   "sensitivity": "0.002",
+//   "showHitboxes": "true",
+//   "keybinds": {
+//     "forward": "w",
+//     "backward": "s",
+//     "left": "a",
+//     "right": "d",
+//     "jump": " ",
+//     "shoot": "mb0",
+//     "dodge": "mb2",
+//     "parry": "e",
+//     "menu": "Tab"
+//   }
+// }
 
 
 
@@ -158,13 +160,19 @@ let playerCollision = (event) => {
   }
 }
 
-let playerGeometry = new THREE.BoxGeometry(2,4,2);
-let playerMaterial = new THREE.MeshBasicMaterial({ color: 0xFE90C9, wireframe: true })
-let playerMesh = new THREE.Mesh(playerGeometry,playerMaterial);
-playerMesh.userData.cc = "player"
-scene.add(playerMesh);
+// let playerGeometry = new THREE.BoxGeometry(2,4,2);
+// let playerMaterial = new THREE.MeshBasicMaterial({ color: 0xFE90C9, wireframe: true })
+// let playerMesh = new THREE.Mesh(playerGeometry,playerMaterial);
+let create_player = () => {
+  let playerMesh = createComplexPlayer("steve", currentSettings.showHitboxes);
+  playerMesh.userData.cc = "player"
+  create_player_body(PLAYER);
+  PLAYER.mesh = playerMesh;
+  scene.add(PLAYER.mesh);
+}
 
-create_player_body(PLAYER);
+
+
 
 // Grab Pointer Lock on first click
 canvas.onclick = (e) => {
@@ -285,27 +293,38 @@ document.addEventListener('mousemove', (event) => {
     cameraRotation.x -= event.movementY * sensitivity;
     cameraRotation.y -= event.movementX * sensitivity;
     cameraRotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraRotation.x));
-    camera.rotation.copy(cameraRotation)
+    camera.rotation.copy(cameraRotation);
+    PLAYER.mesh.rotation.y = (camera.rotation.y)
   }
   mouseState.x = event.movementX;
   mouseState.y = event.movementY;
 });
 
 
+// console.log(PLAYER.mesh);
+
 
 
 
 let updateGame = () => {
-    playerMesh.position.copy(PLAYER.body.position);
-    playerMesh.quaternion.copy(PLAYER.body.quaternion);
+    PLAYER.mesh.position.copy(PLAYER.body.position);
+    // playerMesh.quaternion.copy(PLAYER.body.quaternion);
   
     camera.position.copy(PLAYER.body.position);
     camera.position.y += worldBuildMode==true ? 42.5 : 2.5;
+    // camera.position.z += 4
   
     let playerGravity = new CANNON.Vec3(0, -500, 0);
     let gravityForce = new CANNON.Vec3();
     PLAYER.body.vectorToWorldFrame(playerGravity, gravityForce);
     PLAYER.body.applyForce(gravityForce, PLAYER.body.position);
+
+    let r = 0.3 * Math.sin((2*Math.PI) * 15 * (Date.now()/20000) + 1);
+    let t = 0.1 * Math.sin((2*Math.PI) * 30 * (Date.now()/10000) + 1);
+    PLAYER.mesh.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r*(((PLAYER.body.velocity.x+1) + (PLAYER.body.velocity.z+1))/20));
+    PLAYER.mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r*(((PLAYER.body.velocity.x+1) + (PLAYER.body.velocity.z+1))/20));
+    PLAYER.mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t*3*(((PLAYER.body.velocity.x+1) + (PLAYER.body.velocity.z+1))/20));
+    PLAYER.mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t*3*(((PLAYER.body.velocity.x+1) + (PLAYER.body.velocity.z+1))/20));
 }
 
 let removeBodies = (body, i) => {
@@ -598,7 +617,7 @@ botMesh.position.copy(botBody.position);
 scene.add(botMesh);
 world.addBody(botBody);
 
-let bot = new TrainingBot(botMesh, botBody);
+// let bot = new TrainingBot(botMesh, botBody);
 
 
 
@@ -812,6 +831,7 @@ let toggleTab = (event) => {
     if(isLoginOpen) { document.getElementById("login-dialog").close(); isLoginOpen = false; }
     if(isOnlineOpen) { document.getElementById("online-dialog").close(); isOnlineOpen = false; }
     if(isKeybindsOpen) { document.getElementById("keybinds-menu").close(); isKeybindsOpen = false; }
+    savePlayerSettings();
     toggleCursorLock();
   }
 }
@@ -892,7 +912,7 @@ document.getElementById("key-parry-value").addEventListener("mousedown", handleK
 let savePlayerSettings = () => {
   currentSettings.volume = document.getElementById("volume-value").value == "Space" ? " " : document.getElementById("volume-value").value
   currentSettings.sensitivity = document.getElementById("sensitivity-value").value == "Space" ? " " : document.getElementById("sensitivity-value").value
-  currentSettings.showHitboxes = document.getElementById("hitbox-value").value == "Space" ? " " : document.getElementById("hitbox-value").value
+  currentSettings.showHitboxes = document.getElementById("hitbox-value").checked;
   currentSettings.keybinds.forward = document.getElementById("key-forward-value").value == "Space" ? " " : document.getElementById("key-forward-value").value
   currentSettings.keybinds.backward = document.getElementById("key-backward-value").value == "Space" ? " " : document.getElementById("key-backward-value").value
   currentSettings.keybinds.left = document.getElementById("key-left-value").value == "Space" ? " " : document.getElementById("key-left-value").value
@@ -902,18 +922,20 @@ let savePlayerSettings = () => {
   currentSettings.keybinds.dodge = document.getElementById("key-dodge-value").value == "Space" ? " " : document.getElementById("key-dodge-value").value
   currentSettings.keybinds.parry = document.getElementById("key-parry-value").value == "Space" ? " " : document.getElementById("key-parry-value").value
   currentSettings.keybinds.menu = document.getElementById("key-menu-value").value == "Space" ? " " : document.getElementById("key-menu-value").value
+  
 
   window.localStorage.setItem("playersettings", JSON.stringify(currentSettings))
 }
 
 let getPlayerSettings = () => {
+  // console.log(document.getElementById("hitbox-value").checked)
   let settingsString = window.localStorage.getItem("playersettings");
   if(settingsString != undefined) {
     // set html elements to these values
     let settingObj = JSON.parse(settingsString);
     document.getElementById("volume-value").value = settingObj.volume;
     document.getElementById("sensitivity-value").value = settingObj.sensitivity;
-    document.getElementById("hitbox-value").value = settingObj.showHitboxes;
+    document.getElementById("hitbox-value").checked = settingObj.showHitboxes;
     document.getElementById("key-forward-value").value = settingObj.keybinds.forward == " " ? "Space" : settingObj.keybinds.forward;
     document.getElementById("key-backward-value").value = settingObj.keybinds.backward == " " ? "Space" : settingObj.keybinds.backward;
     document.getElementById("key-left-value").value = settingObj.keybinds.left == " " ? "Space" : settingObj.keybinds.left;
@@ -1303,12 +1325,68 @@ setInterval(() => {
   frames = 0;
 }, 1000)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let playerX = createComplexPlayer();
+// playerX.children.forEach((part, i) => {
+//   part.position.set(3*i, 2, 0);
+//   // scene.add(playerX[part])
+// })
+playerX.position.set(0, 3, -5)
+scene.add(playerX)
+
+// console.log(playerX)
+
+setInterval(() => {
+  let r = 0.3 * Math.sin((2*Math.PI) * 15 * (Date.now()/20000) + 1);
+  let t = 0.1 * Math.sin((2*Math.PI) * 30 * (Date.now()/10000) + 1);
+  playerX.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r);
+  playerX.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r);
+  playerX.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t*3);
+  playerX.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t*3);
+}, 30)
+
+// setInterval(()=> {
+//   playerX.rotateOnAxis(new THREE.Vector3(0,1,0), 0.1)
+// },30)
+
+
+
+
+
+
+
+
+
+
+
+// savePlayerSettings();
+getPlayerSettings();
+savePlayerSettings();
+create_player();
 // Animate function
 const animate = () => {
 
     let rate = 1/60;
     world.step(rate, rate, 10);
     // updateCooldowns();
+    
     playerInputs();
     updateGame();
     updateProjectiles();
