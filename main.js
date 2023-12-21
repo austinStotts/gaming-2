@@ -119,7 +119,7 @@ world.solver.iterations = 7;
 // PLAYER
 let l = [0,3,0]; // PLAYER SPAWN LOCATION
 let create_player_body = (player) => {
-  let shape = new CANNON.Box(new CANNON.Vec3(1,2,1));
+  let shape = new CANNON.Box(new CANNON.Vec3(1.25,3,1.25));
   let playerBody = new CANNON.Body({ shape: shape, mass: 50, fixedRotation: true, linearDamping: 0.99 });
   let playerMaterial = new CANNON.Material("playerMaterial");
   playerMaterial.friction = 0.1;
@@ -386,6 +386,17 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 //            perfect parry turns dodge into damaging dash
 //            +1 mag size - less reloading
 //
+
+
+// a few weeks later!
+// can make multiplayer rooms for many to join
+// can shoot, dodge, and parry in realtime with other players
+// can win!
+// using a more complex player model with arem and leg movements
+// this needs a lot more work but is way better than a cube
+// need to work more on the gameplay loop
+// and need a more interesting environment to play! 
+
 
 
 // left click    : 0
@@ -749,13 +760,14 @@ let sendHit = (player, pid) => {
 
 let onlinePlayers = {};
 
-let makeOnlinePlayer = (playerID, position) => {
-  let pg = new THREE.BoxGeometry(2, 4, 2);
-  let pm = new THREE.MeshBasicMaterial({ color: parryLevel[playerID] });
-  let pMesh = new THREE.Mesh(pg, pm);
+let makeOnlinePlayer = (playerID, data) => {
+  // let pg = new THREE.BoxGeometry(2, 4, 2);
+  // let pm = new THREE.MeshBasicMaterial({ color: parryLevel[playerID] });
+  // let pMesh = new THREE.Mesh(pg, pm);
+  let pMesh = createComplexPlayer(playerID, currentSettings.showHitboxes);
   pMesh.userData.playerID = playerID;
 
-  let ps = new CANNON.Box(new CANNON.Vec3(1, 2, 1));
+  let ps = new CANNON.Box(new CANNON.Vec3(1.25, 3, 1.25));
   let pBody = new CANNON.Body({ shape: ps, mass: 50 });
   pBody.userData = { cc: "onlineEnemyPlayer", playerID: playerID };
   pBody.addEventListener("collide", (e) => {
@@ -763,11 +775,14 @@ let makeOnlinePlayer = (playerID, position) => {
     // if(e.target.userData.cc ==)
   })
 
-  pMesh.position.set(position.x, position.y, position.z);
+  pMesh.position.set(data.position.x, data.position.y, data.position.z);
+  // pMesh.rotation.set(data.rotation);
   pBody.position.copy(pMesh.position);
   scene.add(pMesh);
   world.addBody(pBody);
   onlinePlayers[playerID] = {playerID, mesh: pMesh, body: pBody};
+  // console.log(pMesh);
+  // console.log(data.rotation)
 }
 
 let updateOnlinePlayers = (players) => {
@@ -779,13 +794,21 @@ let updateOnlinePlayers = (players) => {
 
       } else {
         onlinePlayers[pkeys[i]].mesh.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
+        onlinePlayers[pkeys[i]].mesh.rotation.copy(players[pkeys[i]].rotation)
         onlinePlayers[pkeys[i]].body.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
+      
+        let r = 0.3 * Math.sin((2*Math.PI) * 15 * (Date.now()/20000) + 1);
+        let t = 0.1 * Math.sin((2*Math.PI) * 30 * (Date.now()/10000) + 1);
+        onlinePlayers[pkeys[i]].mesh.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
+        onlinePlayers[pkeys[i]].mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
+        onlinePlayers[pkeys[i]].mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t*3*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
+        onlinePlayers[pkeys[i]].mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t*3*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
       }
     } else {
       if(pkeys[i] == onlinePlayerID) { // skip if own player
 
       } else {
-        makeOnlinePlayer(pkeys[i], players[pkeys[i]].position);
+        makeOnlinePlayer(pkeys[i], {position: players[pkeys[i]].position, rotation: players[pkeys[i]].rotation});
       }
     }
   }
@@ -1062,7 +1085,8 @@ document.getElementById("signup").addEventListener("click", (event) => {
 })
 
 document.getElementById("connect").addEventListener("click", (event) => {
-    socket = io("http://34.239.48.37/");
+    // socket = io("http://34.239.48.37/");
+    socket = io("http://localhost:4001");
     socket.on("roomid", (id, playerID) => {
       console.log(socket)
       // console.log(playerID)
@@ -1275,7 +1299,7 @@ let onlinePlayerCollision = (pid) => {
 
 let sendPlayerPositions = () => {
   if(onlinePlayerID != undefined) {
-    socket.emit("playerposition", ridl.innerText, onlinePlayerID, PLAYER.body.position)
+    socket.emit("playerposition", ridl.innerText, onlinePlayerID, getPlayerData(PLAYER))
   }
 }
 
@@ -1332,6 +1356,13 @@ setInterval(() => {
 
 
 
+
+
+let getPlayerData = (player) => {
+  let position = player.body.position;
+  let rotation = player.mesh.rotation;
+  return {position, rotation}
+}
 
 
 
