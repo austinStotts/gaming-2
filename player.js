@@ -63,7 +63,17 @@ export default class Player {
     
         let pShape = new CANNON.Sphere(1);
         let pBody = new CANNON.Body({ shape: pShape, mass: 1, linearDamping: 0.05 });
-        pBody.position.set(this.body.position.x, this.body.position.y+3, this.body.position.z);
+        
+        // let s = new THREE.Vector3();
+        // camera.getWorldDirection(s);
+        // let c = new THREE.Vector3();
+        // c.copy(camera.position)
+        // console.log("camera position:",c)
+        // console.log("camera direction:",s)
+        // c.lerp(s, 0.1)
+        // console.log("camera with vector:",c)
+        console.log(camera.children)
+        pBody.position.copy(camera.children[0].position);
         pMesh.position.copy(pBody.position);
         
 

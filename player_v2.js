@@ -9,10 +9,11 @@ export default (id, hitbox=false) => {
     // a torso
     // and a head
 
-    let torsoGeo = new THREE.BoxGeometry(2,3,2);
+
+    let torsoGeo = new THREE.BoxGeometry(1.75,3,1.75);
     let headGeo = new THREE.BoxGeometry(2,2,2);
-    let armGeo = new THREE.BoxGeometry(1,2,1);
-    let legGeo = new THREE.BoxGeometry(1,2,1);
+    let armGeo = new THREE.BoxGeometry(0.75,2,0.75);
+    let legGeo = new THREE.BoxGeometry(0.75,2,0.75);
 
     let torsoMat = new THREE.MeshBasicMaterial({ color: 0x639FFF });
     let headMat = new THREE.MeshBasicMaterial({ color: 0x8863ff });
@@ -26,23 +27,23 @@ export default (id, hitbox=false) => {
     let legMeshL = new THREE.Mesh(legGeo, legMat);
     let legMeshR = new THREE.Mesh(legGeo, legMat);
 
-    
+    let inFrontOfPlayer = new THREE.Mesh(new THREE.BoxGeometry(0.1,0.1,0.1), new THREE.MeshBasicMaterial({transparent: true ,wireframe: true}));
+
 
     let player = new THREE.Group();
-    player.add(torsoMesh, headMesh, armMeshL, armMeshR, legMeshL, legMeshR);
+    player.add(torsoMesh, headMesh, armMeshL, armMeshR, legMeshL, legMeshR, inFrontOfPlayer);
     headMesh.position.setY(2.5);
-    armMeshL.position.setX(1.5);
-    armMeshR.position.setX(-1.5);
-    legMeshL.position.set(0.5, -2.5, 0);
-    legMeshR.position.set(-0.5, -2.5, 0);
+    armMeshL.position.setX(1.3);
+    armMeshR.position.setX(-1.3);
+    legMeshL.position.set(0.4, -2.5, 0);
+    legMeshR.position.set(-0.4, -2.5, 0);
+    inFrontOfPlayer.position.set(0,3,-2);
 
     if(hitbox) {
         let hb = new THREE.Mesh(new THREE.BoxGeometry(2.5,6,2.5), new THREE.MeshBasicMaterial({ color: 0xFF00FF, wireframe: true }))
         player.add(hb);
     }
 
-    // armMeshL.rotateOnAxis(new THREE.Vector3(1,0,0), 2)
-    // armMeshR.rotateOnAxis(new THREE.Vector3(1,0,0), -2)
-
     return player
+
 }

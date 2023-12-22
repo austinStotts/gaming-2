@@ -91,8 +91,11 @@ let toggleCursorLock = (force=false) => {
 
 // THREE + Camera
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(2,5,0);
+
+// inFrontOfCamera.position.z -= 2;
+
 const renderer = new THREE.WebGLRenderer({ powerPreference: "high-performance" });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.getContext().linewidth = 6;
@@ -295,6 +298,7 @@ document.addEventListener('mousemove', (event) => {
     cameraRotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraRotation.x));
     camera.rotation.copy(cameraRotation);
     PLAYER.mesh.rotation.y = (camera.rotation.y)
+    PLAYER.mesh.children[1].rotation.x = (camera.rotation.x)
   }
   mouseState.x = event.movementX;
   mouseState.y = event.movementY;
@@ -793,16 +797,28 @@ let updateOnlinePlayers = (players) => {
       if(pkeys[i] == onlinePlayerID) { // skip if own player
 
       } else {
+        console.log(players[pkeys[i]].faceRotation)
         onlinePlayers[pkeys[i]].mesh.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
-        onlinePlayers[pkeys[i]].mesh.rotation.copy(players[pkeys[i]].rotation)
+        onlinePlayers[pkeys[i]].mesh.rotation.copy(players[pkeys[i]].rotation);
+        onlinePlayers[pkeys[i]].mesh.children[1].rotation.copy(players[pkeys[i]].faceRotation);
         onlinePlayers[pkeys[i]].body.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
       
-        let r = 0.3 * Math.sin((2*Math.PI) * 15 * (Date.now()/20000) + 1);
-        let t = 0.1 * Math.sin((2*Math.PI) * 30 * (Date.now()/10000) + 1);
-        onlinePlayers[pkeys[i]].mesh.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
-        onlinePlayers[pkeys[i]].mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
-        onlinePlayers[pkeys[i]].mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t*3*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
-        onlinePlayers[pkeys[i]].mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t*3*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
+        // let r = 0.3 * Math.sin((2*Math.PI) * 15 * (Date.now()/20000) + 1);
+        // let t = 0.1 * Math.sin((2*Math.PI) * 30 * (Date.now()/10000) + 1);
+        // onlinePlayers[pkeys[i]].mesh.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
+        // onlinePlayers[pkeys[i]].mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
+        // onlinePlayers[pkeys[i]].mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t*3*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
+        // onlinePlayers[pkeys[i]].mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t*3*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
+      
+        if(onlinePlayers[pkeys[i]].body.velocity.x + onlinePlayers[pkeys[i]].body.velocity.z > 0) {
+          let r = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/1000) + 1);
+          let t = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/800) + 1);
+          onlinePlayers[pkeys[i]].mesh.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r);
+          onlinePlayers[pkeys[i]].mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r);
+          onlinePlayers[pkeys[i]].mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t);
+          onlinePlayers[pkeys[i]].mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t);
+                  
+        }
       }
     } else {
       if(pkeys[i] == onlinePlayerID) { // skip if own player
@@ -1361,7 +1377,9 @@ setInterval(() => {
 let getPlayerData = (player) => {
   let position = player.body.position;
   let rotation = player.mesh.rotation;
-  return {position, rotation}
+  let faceRotation = player.mesh.children[1].rotation;
+  // console.log(faceRotation)
+  return {position, rotation, faceRotation}
 }
 
 
@@ -1374,23 +1392,53 @@ let getPlayerData = (player) => {
 
 
 
-let playerX = createComplexPlayer();
-// playerX.children.forEach((part, i) => {
-//   part.position.set(3*i, 2, 0);
-//   // scene.add(playerX[part])
-// })
-playerX.position.set(0, 3, -5)
-scene.add(playerX)
+
+
+let textureLoader = new THREE.TextureLoader();
+textureLoader.load("./assets/face_01.png", (texture) => {
+
+let headGeo = new THREE.BoxGeometry(2,2,2);
+let materialArray = new Array(5).fill(new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+  materialArray.unshift(new THREE.MeshBasicMaterial({ map: texture }));
+  console.log(materialArray)
+  let headMesh = new THREE.Mesh(headGeo, materialArray);
+  headMesh.rotateY(-Math.PI/2);
+  headMesh.position.set(-10,2,-10)
+  scene.add(headMesh)
+
+})
+
+// headMesh.position.set(-10,2,-10)
+// scene.add(headMesh);
+
+console.log("headmesh made");
+
+
+
+
+  let playerX = createComplexPlayer();
+  // playerX.children.forEach((part, i) => {
+  //   part.position.set(3*i, 2, 0);
+  //   // scene.add(playerX[part])
+  // })
+
+  playerX.position.set(0, 3, -5)
+  scene.add(playerX)
+
+ 
+
+
+
 
 // console.log(playerX)
 
 setInterval(() => {
-  let r = 0.3 * Math.sin((2*Math.PI) * 15 * (Date.now()/20000) + 1);
-  let t = 0.1 * Math.sin((2*Math.PI) * 30 * (Date.now()/10000) + 1);
+  let r = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/1000) + 1);
+  let t = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/800) + 1);
   playerX.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r);
   playerX.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r);
-  playerX.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t*3);
-  playerX.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t*3);
+  playerX.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t);
+  playerX.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t);
 }, 30)
 
 // setInterval(()=> {
