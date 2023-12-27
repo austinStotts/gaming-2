@@ -6,7 +6,7 @@ import 'js-circle-progress';
 import Player from './player.js';
 import { acceleratedRaycast } from 'three-mesh-bvh'
 
-import createComplexPlayer from "./player_v2.js";
+import createComplexPlayer from "./playermodel.js";
 
 // Global Variables
 let sensitivity = 0.0002;
@@ -140,15 +140,12 @@ let create_player_body = (player) => {
 let playerCollision = (event) => {
   if(event.body.userData.cc == "enemyProjectile") { 
     if(PLAYER.time_since_last_parry + PLAYER.perfect_parry_window > Date.now()) {
-      console.log("perfect!");
       // reflect projectile / must be perfect parry to reflect again
       reflectProjectile(event.body, true);
     } else if(PLAYER.time_since_last_parry + PLAYER.parry_window > Date.now()) {
-      console.log("parry!");
       // reflect projectile
       reflectProjectile(event.body, false);
     } else {
-      console.log('player hit!');
       let damage = document.getElementById("damage");
       damage.classList.add("damage");
       damage.hidden = false;
@@ -226,7 +223,7 @@ let onKeyDown = (event) => {
       override = !override;
       break
     case "j":
-      toggleBuildMode();
+      worldBuildMode = !worldBuildMode;
       break
     case currentSettings.keybinds.parry:
       parry();
@@ -309,19 +306,27 @@ document.addEventListener('mousemove', (event) => {
 
 
 
-
+// !UPDATE GAME
 let updateGame = () => {
     PLAYER.mesh.position.copy(PLAYER.body.position);
     // playerMesh.quaternion.copy(PLAYER.body.quaternion);
   
     camera.position.copy(PLAYER.body.position);
-    camera.position.y += worldBuildMode==true ? 42.5 : 2.5;
+    camera.position.y += worldBuildMode==true ? 10 : 2.5;
     // camera.position.z += 4
   
-    let playerGravity = new CANNON.Vec3(0, -500, 0);
-    let gravityForce = new CANNON.Vec3();
-    PLAYER.body.vectorToWorldFrame(playerGravity, gravityForce);
-    PLAYER.body.applyForce(gravityForce, PLAYER.body.position);
+    // let playerGravity = new CANNON.Vec3(0, -500, 0);
+    // let gravityForce = new CANNON.Vec3();
+    // PLAYER.body.vectorToWorldFrame(playerGravity, gravityForce);
+    // PLAYER.body.applyForce(gravityForce, PLAYER.body.position);
+
+    let tB = new CANNON.Body();
+    tB.velocity.addScaledVector
+    if(PLAYER.body.velocity.y < 0) {
+      PLAYER.body.velocity.y -= 1.0;
+    }
+    // let down = new CANNON.Vec3(0,-500,0);
+    // PLAYER.body.applyForce(down, PLAYER.body.position)
 
     let r = 0.3 * Math.sin((2*Math.PI) * 15 * (Date.now()/20000) + 1);
     let t = 0.1 * Math.sin((2*Math.PI) * 30 * (Date.now()/10000) + 1);
@@ -486,7 +491,14 @@ let checkForWall = (start, direction, length) => {
 
 
 
+const floorTextureLoader = new THREE.TextureLoader();
+const floorTexture = floorTextureLoader.load('./assets/floor.png');
+floorTexture.wrapS = THREE.RepeatWrapping;
+floorTexture.wrapT = THREE.RepeatWrapping;
 
+const repeatXf = 500 
+const repeatYf = 500; // Repeat 4 times along the y-axis
+floorTexture.repeat.set(repeatXf, repeatYf);
 
 
 let floorShape = new CANNON.Plane();
@@ -501,7 +513,7 @@ floor.position.set(0,0,0);
 world.addBody(floor);
 
 const floorGeometry = new THREE.BoxGeometry(1000,1000,0,100,100);
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x8DC9AB, wireframe: false });
+const floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture, wireframe: false });
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
 floorMesh.quaternion.copy(floor.quaternion);
 floorMesh.position.copy(floor.position);
@@ -510,22 +522,176 @@ floor.userData = {mesh: floorMesh, cc: "floor"}
 scene.add(floorMesh);
 
 
+let rug = new THREE.Mesh(new THREE.BoxGeometry(50,0.1,50), new THREE.MeshBasicMaterial({color: 0x9B5DFF}))
+rug.position.set(0,0,0);
+scene.add(rug)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 let wallGeo = new THREE.BoxGeometry(10,10,1);
 let wallMat = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
-let wall = new THREE.Mesh(wallGeo, wallMat);
-wall.position.set(0, 5, -15);
-wall.userData.cc = "wall";
-scene.add(wall);
-
 let wallShape = new CANNON.Box(new CANNON.Vec3(5,5,0.5));
-let wallBody = new CANNON.Body({ shape: wallShape, mass: 0 });
 let wallBodyMaterial = new CANNON.Material("wallBodyMaterial");
 wallBodyMaterial.friction = 0.1;
 wallBodyMaterial.restitution = 0.1;
-wallBody.material = wallBodyMaterial;
-wallBody.userData = { cc: "wall" }
-wallBody.position.copy(wall.position);
-world.addBody(wallBody)
+
+
+let wall1 = new THREE.Mesh(wallGeo, wallMat);
+wall1.userData.cc = "wall";
+
+let wall2 = new THREE.Mesh(wallGeo, wallMat);
+wall2.userData.cc = "wall";
+
+let wallBody1 = new CANNON.Body({ shape: wallShape, mass: 0 });
+wallBody1.material = wallBodyMaterial;
+wallBody1.userData = { cc: "wall" }
+// wallBody1.position.copy(wall1.position);
+
+let wallBody2 = new CANNON.Body({ shape: wallShape, mass: 0 });
+wallBody2.material = wallBodyMaterial;
+wallBody2.userData = { cc: "wall" }
+// wallBody2.position.copy(wall2.position);
+
+
+
+let rampGeo = new THREE.BoxGeometry(9.9,14.3,1);
+let rampMat = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+let rampShape = new CANNON.Box(new CANNON.Vec3(4.95,7.15,0.5));
+let rampBodyMaterial = new CANNON.Material("rampBodyMaterial");
+rampBodyMaterial.friction = 0.05;
+rampBodyMaterial.restitution = 0.9;
+
+
+let ramp1 = new THREE.Mesh(rampGeo, rampMat);
+ramp1.userData.cc = "floor";
+
+let rampBody1 = new CANNON.Body({ shape: rampShape, mass: 0 });
+rampBody1.material = rampBodyMaterial;
+rampBody1.userData = { cc: "floor" }
+// rampBody1.position.copy(ramp1.position);
+// rampBody1.quaternion.copy(ramp1.quaternion);
+
+let ramp2 = new THREE.Mesh(rampGeo, rampMat);
+
+ramp2.userData.cc = "floor";
+
+let rampBody2 = new CANNON.Body({ shape: rampShape, mass: 0 });
+rampBody2.material = rampBodyMaterial;
+rampBody2.userData = { cc: "floor" }
+// rampBody2.position.copy(ramp2.position);
+// rampBody2.quaternion.copy(ramp2.quaternion);
+
+
+let outsideWallGeo = new THREE.BoxGeometry(90,20,1);
+let outsideWallMat = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
+let outsideWallShape = new CANNON.Box(new CANNON.Vec3(45,10,0.5));
+
+
+let outsideWall1 = new THREE.Mesh(outsideWallGeo, outsideWallMat);
+outsideWall1.userData.cc = "wall";
+
+let outsideWallBody1 = new CANNON.Body({ shape: outsideWallShape, mass: 0 });
+outsideWallBody1.material = wallBodyMaterial;
+outsideWallBody1.userData = { cc: "wall" }
+// outsideWallBody1.position.copy(outsideWall1.position);
+// outsideWallBody1.quaternion.copy(outsideWall1.quaternion);
+
+let outsideWall2 = new THREE.Mesh(outsideWallGeo, outsideWallMat);
+outsideWall2.userData.cc = "wall";
+
+let outsideWallBody2 = new CANNON.Body({ shape: outsideWallShape, mass: 0 });
+outsideWallBody2.material = wallBodyMaterial;
+outsideWallBody2.userData = { cc: "wall" }
+// outsideWallBody2.position.copy(outsideWall2.position);
+// outsideWallBody2.quaternion.copy(outsideWall2.quaternion);
+
+
+let endWallGeo = new THREE.BoxGeometry(40,20,1);
+let endWallMat = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
+let endWallShape = new CANNON.Box(new CANNON.Vec3(20,10,0.5));
+
+let endWall1 = new THREE.Mesh(endWallGeo, endWallMat);
+endWall1.userData.cc = "wall";
+
+let endWallBody1 = new CANNON.Body({ shape: endWallShape, mass: 0 });
+endWallBody1.material = wallBodyMaterial;
+endWallBody1.userData = { cc: "wall" }
+// endWallBody1.position.copy(endWall1.position);
+// endWallBody1.quaternion.copy(endWall1.quaternion);
+
+let endWall2 = new THREE.Mesh(endWallGeo, endWallMat);
+endWall2.userData.cc = "wall";
+
+let endWallBody2 = new CANNON.Body({ shape: endWallShape, mass: 0 });
+endWallBody2.material = wallBodyMaterial;
+endWallBody2.userData = { cc: "wall" }
+// endWallBody2.position.copy(endWall2.position);
+// endWallBody2.quaternion.copy(endWall2.quaternion);
+
+
+let arena = new THREE.Group();
+arena.add(wall1, wall2, ramp1, ramp2, outsideWall1, outsideWall2, endWall1, endWall2)
+let arenaBodies = [wallBody1, wallBody2, rampBody1, rampBody2, outsideWallBody1, outsideWallBody2, endWallBody1, endWallBody2];
+
+wall1.position.set(-20, 5, -20);
+wall2.position.set(-20, 5, 20);
+ramp1.rotateX((Math.PI/4))
+ramp1.position.set(-20, 4.75, -25.1);
+ramp2.rotateX(-(Math.PI/4))
+ramp2.position.set(-20, 4.75, 25.1);
+outsideWall1.position.set(-40, 10, 0);
+outsideWall1.rotateY((Math.PI/2))
+outsideWall2.position.set(0, 10, 0);
+outsideWall2.rotateY((Math.PI/2))
+endWall1.position.set(-20, 5, -50);
+endWall2.position.set(-20, 5, 50);
+
+arena.position.set(-50, 0, 0);
+console.log(arena)
+scene.add(arena)
+for(let i = 0; i < arena.children.length; i++) {
+  let wp = new THREE.Vector3();
+  arena.children[i].getWorldPosition(wp);
+  arenaBodies[i].position.set(wp.x, wp.y, wp.z);
+  arenaBodies[i].quaternion.copy(arena.children[i].quaternion)
+  world.addBody(arenaBodies[i]);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // for(let i = 0; i < 4; i++) {
@@ -646,23 +812,57 @@ let parry = () => {
   }
 }
 
+let headsup = document.getElementById("headsup");
+let showParry = (perfect=false) => {
+  if(perfect) {
+    headsup.innerText = "perfect!"
+    headsup.classList.add("grow", "perfect");
+    setTimeout(() => {
+      headsup.classList.remove("grow", "perfect");
+      headsup.innerText = "";
+    }, 450);
+  } else {
+    headsup.innerText = "parry!"
+    headsup.classList.add("grow", "parry");
+    setTimeout(() => {
+      headsup.classList.remove("grow", "parry");
+      headsup.innerText = "";
+    }, 450);
+  }
+}
+
+let showHit = () => {
+  headsup.innerText = "hit!"
+  headsup.classList.add("grow", "hit");
+  setTimeout(() => {
+    headsup.classList.remove("grow", "hit");
+    headsup.innerText = "";
+  }, 450);
+}
+
 let reflectProjectile = (projectile, perfect=false) => {
   if(perfect) {
     PLAYER.time_since_last_parry = 0;
     projectile.userData.createdAt = Date.now();
     let direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
-    projectile.position.copy(camera.position);
+    let np = new THREE.Vector3();
+    PLAYER.mesh.children[1].children[0].getWorldPosition(np);
+    projectile.position.set(np.x, np.y, np.z);
     projectile.velocity.set(direction.x *100, direction.y, direction.z *100);
     projectile.userData.mesh.userData.parryLevel += 1;
     projectile.userData.mesh.material.color.setHex(parryLevel[projectile.userData.mesh.userData.parryLevel]);
+    showParry(true);
   } else {
     // PLAYER.time_since_last_parry = 0;
     projectile.userData.createdAt = Date.now();
     let direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
-    projectile.position.copy(camera.position);
+    let np = new THREE.Vector3();
+    PLAYER.mesh.children[1].children[0].getWorldPosition(np);
+    projectile.position.set(np.x, np.y, np.z);
     projectile.velocity.set(direction.x *75, direction.y, direction.z *75);
+    showParry(false);
   }
 }
 
@@ -775,7 +975,7 @@ let makeOnlinePlayer = (playerID, data) => {
   let pBody = new CANNON.Body({ shape: ps, mass: 50 });
   pBody.userData = { cc: "onlineEnemyPlayer", playerID: playerID };
   pBody.addEventListener("collide", (e) => {
-    if(e.body.userData.cc == "playerProjectile") { sendHit(e.target.userData.playerID, `p${onlinePlayerID}-${e.body.userData.mesh.uuid}`); e.body.userData.createdAt -= 3000; }
+    if(e.body.userData.cc == "playerProjectile") { sendHit(e.target.userData.playerID, `p${onlinePlayerID}-${e.body.userData.mesh.uuid}`); e.body.userData.createdAt -= 3000; showHit()}
     // if(e.target.userData.cc ==)
   })
 
@@ -1269,7 +1469,6 @@ let onlinePlayerCollision = (pid) => {
   socket.emit("deleteprojectile", pid, ridl.innerText);
   if(PLAYER.time_since_last_parry + PLAYER.perfect_parry_window > Date.now()) {
     // if(true) {
-    console.log("perfect!");
     // reflect projectile / must be perfect parry to reflect again
     // reflectProjectile(event.body, true);
 
@@ -1281,7 +1480,6 @@ let onlinePlayerCollision = (pid) => {
     projectiles.push(p);
 
   } else if(PLAYER.time_since_last_parry + PLAYER.parry_window > Date.now()) {
-    console.log("parry!");
     // reflect projectile
     // reflectProjectile(event.body, false);
 
@@ -1292,16 +1490,15 @@ let onlinePlayerCollision = (pid) => {
     projectiles.push(p);
 
   } else {
-    console.log('player hit!');
     PLAYER.hp -= Number(currentRoomProjectiles[pid].mesh.userData.parryLevel) +1;
     updateHP(currentRoomProjectiles[pid].mesh.userData.owner);
-    // let damage = document.getElementById("damage");
-    // damage.classList.add("damage");
-    // damage.hidden = false;
-    // setTimeout(() => {
-    //   damage.classList.remove("damage");
-    //   damage.hidden = true;
-    // }, 300);
+    let damage = document.getElementById("damage");
+    damage.classList.add("damage");
+    damage.hidden = false;
+    setTimeout(() => {
+      damage.classList.remove("damage");
+      damage.hidden = true;
+    }, 250);
     // take damage / delete projectile
   }
 }
@@ -1404,7 +1601,7 @@ let materialArray = new Array(5).fill(new THREE.MeshBasicMaterial({ color: 0xFFF
   let headMesh = new THREE.Mesh(headGeo, materialArray);
   headMesh.rotateY(-Math.PI/2);
   headMesh.position.set(-10,2,-10)
-  scene.add(headMesh)
+  // scene.add(headMesh)
 
 })
 
@@ -1422,7 +1619,7 @@ console.log("headmesh made");
   //   // scene.add(playerX[part])
   // })
 
-  playerX.position.set(0, 3, -5)
+  playerX.position.set(10, 3, -5)
   scene.add(playerX)
 
  

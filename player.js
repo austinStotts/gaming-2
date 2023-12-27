@@ -16,7 +16,7 @@ export default class Player {
         this.mesh;
         this.body;
 
-        this.jump_multiplier = 1.5;
+        this.jump_multiplier = 1.75;
 
         this.dodge_distance = 50;
         this.dodge_cooldown = 1000; // 1000
@@ -72,8 +72,10 @@ export default class Player {
         // console.log("camera direction:",s)
         // c.lerp(s, 0.1)
         // console.log("camera with vector:",c)
-        console.log(camera.children)
-        pBody.position.copy(camera.children[0].position);
+        console.log(this.mesh.children[1].children[0])
+        let sp = new THREE.Vector3();
+        this.mesh.children[1].children[0].getWorldPosition(sp);
+        pBody.position.set(sp.x, sp.y, sp.z)
         pMesh.position.copy(pBody.position);
         
 

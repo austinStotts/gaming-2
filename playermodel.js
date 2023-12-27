@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from "cannon-es";
+import ch from "./crosshair";
 
 
 export default (id, hitbox=false) => {
@@ -27,17 +28,19 @@ export default (id, hitbox=false) => {
     let legMeshL = new THREE.Mesh(legGeo, legMat);
     let legMeshR = new THREE.Mesh(legGeo, legMat);
 
-    let inFrontOfPlayer = new THREE.Mesh(new THREE.BoxGeometry(0.1,0.1,0.1), new THREE.MeshBasicMaterial({transparent: true ,wireframe: true}));
-
+    
+    // let crosshair = new THREE.Mesh(new THREE.BoxGeometry(0.1,0.1,0.1), new THREE.MeshBasicMaterial({transparent: true ,wireframe: true}));
+    let crosshair = ch();
+    headMesh.add(crosshair)
 
     let player = new THREE.Group();
-    player.add(torsoMesh, headMesh, armMeshL, armMeshR, legMeshL, legMeshR, inFrontOfPlayer);
+    player.add(torsoMesh, headMesh, armMeshL, armMeshR, legMeshL, legMeshR);
     headMesh.position.setY(2.5);
     armMeshL.position.setX(1.3);
     armMeshR.position.setX(-1.3);
     legMeshL.position.set(0.4, -2.5, 0);
     legMeshR.position.set(-0.4, -2.5, 0);
-    inFrontOfPlayer.position.set(0,3,-2);
+    crosshair.position.set(0,0,-1);
 
     if(hitbox) {
         let hb = new THREE.Mesh(new THREE.BoxGeometry(2.5,6,2.5), new THREE.MeshBasicMaterial({ color: 0xFF00FF, wireframe: true }))
