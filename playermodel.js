@@ -10,13 +10,14 @@ export default (id, hitbox=false) => {
     // a torso
     // and a head
 
+    let playerColors = [0xF08080, 0xF39C12, 0xE74C3C, 0xA569BD, 0x5DADE2, 0x2ECC71, 0xF1C40F, 0x2C3E50]
 
     let torsoGeo = new THREE.BoxGeometry(1.75,3,1.75);
     let headGeo = new THREE.BoxGeometry(2,2,2);
     let armGeo = new THREE.BoxGeometry(0.75,2,0.75);
     let legGeo = new THREE.BoxGeometry(0.75,2,0.75);
 
-    let torsoMat = new THREE.MeshBasicMaterial({ color: 0x639FFF });
+    let torsoMat = new THREE.MeshBasicMaterial({ color: playerColors[id] || 0xF08080 });
     let headMat = new THREE.MeshBasicMaterial({ color: 0x8863ff });
     let armMat = new THREE.MeshBasicMaterial({ color: 0x63ff63 });
     let legMat = new THREE.MeshBasicMaterial({ color: 0xffd063 });

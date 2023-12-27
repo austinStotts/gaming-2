@@ -10,9 +10,10 @@
     z-index: 200;
     position: relative;
     top: -2px;
-    color: white;
+    color: black;
     text-align: center;
-    font-family: 'Courier New', Courier, monospace;
+    /* font-family: 'Courier New', Courier, monospace; */
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     font-size: 20px;
     font-weight: 700;
     font-style: italic;
@@ -42,7 +43,11 @@
 .dodge-circle::part(text) {
     font-family: 'Courier New', Courier, monospace;
     font-size: 26px;
-    stroke: dodgerblue;
+    stroke: rgb(255, 255, 255);
+}
+
+.dodge-circle::part(circle) {
+    stroke: rgb(255, 87, 87);
 }
 
 .parry-cooldown-wrapper {
@@ -69,7 +74,11 @@
 .parry-circle::part(text) {
     font-family: 'Courier New', Courier, monospace;
     font-size: 26px;
-    stroke: dodgerblue;
+    stroke: rgb(255, 255, 255);
+}
+
+.parry-circle::part(circle) {
+    stroke: rgb(255, 87, 87);
 }
 
 .reload-cooldown-wrapper {
@@ -96,7 +105,11 @@
 .reload-circle::part(text) {
     font-family: 'Courier New', Courier, monospace;
     font-size: 26px;
-    stroke: dodgerblue;
+    stroke: rgb(255, 255, 255);
+}
+
+.reload-circle::part(circle) {
+    stroke: rgb(255, 87, 87);
 }
 
 #tab-menu {
@@ -580,11 +593,14 @@ button:hover {
     text-decoration: underline;
 }
 
-#hp-label {
+.hp-wrapper {
     position: absolute;
     z-index: 200;
     bottom: 30px;
     left: 100px;
+}
+
+#hp-label {
     color: white;
     text-shadow: 2px 2px red;
     font-family: 'Courier New', Courier, monospace;
@@ -701,4 +717,29 @@ button:hover {
 .hit {
     color: rgb(255, 126, 255);
     text-shadow: 2px 2px pink;
+}
+
+
+
+
+
+
+
+
+
+
+
+.c-shoot {
+    color: rgb(254, 102, 102);
+    text-shadow: 1px 1px rgb(0, 0, 0);
+}
+
+.c-dodge {
+    color: rgb(87, 87, 255);
+    text-shadow: 1px 1px rgb(0, 0, 0);
+}
+
+.c-parry {
+    color: rgb(255, 87, 157);
+    text-shadow: 1px 1px rgb(0, 0, 0);
 }

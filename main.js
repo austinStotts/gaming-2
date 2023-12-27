@@ -872,7 +872,9 @@ let reflectProjectile = (projectile, perfect=false) => {
 
 
 let updateHP = (p="n/a") => {
-  document.getElementById("hp-label").textContent = PLAYER.hp;
+  // document.getElementById("hp-label").textContent = PLAYER.hp;
+  document.getElementById("hearts").innerText = ("❤️".repeat(PLAYER.hp));
+
   if(PLAYER.hp <= 0) {
     // show win screen
     console.log(`player ${onlinePlayerID} loses`);
@@ -896,7 +898,7 @@ dodge_cooldown.classList.add("dodge-circle")
 dodge_cooldown.max = 100;
 dodge_cooldown.value = 0;
 dodge_cooldown.textFormat = (v) => {
-  if(v == 100) { return "[M2]" }
+  if(v == 100) { return "[R]" }
   else { return ((PLAYER.dodge_cooldown/1000) - (v/100)*PLAYER.dodge_cooldown/1000).toFixed(1) + "s" }
 };
 dcw.appendChild(dodge_cooldown);
@@ -918,7 +920,7 @@ reload_cooldown.classList.add("reload-circle");
 reload_cooldown.max = 100;
 reload_cooldown.value = 0;
 reload_cooldown.textFormat = (v) => {
-  if(v == 100) { return "[M0]" }
+  if(v == 100) { return "[L]" }
   else { return ((PLAYER.shoot_cooldown/1000) - (v/100)*PLAYER.shoot_cooldown/1000).toFixed(1) + "s" }
 };
 rcw.appendChild(reload_cooldown);
@@ -997,7 +999,7 @@ let updateOnlinePlayers = (players) => {
       if(pkeys[i] == onlinePlayerID) { // skip if own player
 
       } else {
-        console.log(players[pkeys[i]].faceRotation)
+        // console.log(players[pkeys[i]].faceRotation)
         onlinePlayers[pkeys[i]].mesh.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
         onlinePlayers[pkeys[i]].mesh.rotation.copy(players[pkeys[i]].rotation);
         onlinePlayers[pkeys[i]].mesh.children[1].rotation.copy(players[pkeys[i]].faceRotation);
@@ -1220,10 +1222,12 @@ let updateRoomProjectiles = (rps) => {
   // console.log(rps)
   let keys = Object.keys(rps);
   for(let i = 0; i < keys.length; i++) { // update Proj
-    if(currentRoomProjectiles[rps[keys[i]].pid] != undefined) {
-      currentRoomProjectiles[rps[keys[i]].pid].mesh.position.set(rps[keys[i]].position.x,rps[keys[i]].position.y,rps[keys[i]].position.z)
-    } else { // new Proj
-      currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeRoomProjectile(rps[keys[i]].position, rps[keys[i]].pid, rps[keys[i]].parryLevel, rps[keys[i]].owner)}
+    if(rps[keys[i]].owner != onlinePlayerID) {
+      if(currentRoomProjectiles[rps[keys[i]].pid] != undefined) {
+        currentRoomProjectiles[rps[keys[i]].pid].mesh.position.set(rps[keys[i]].position.x,rps[keys[i]].position.y,rps[keys[i]].position.z)
+      } else { // new Proj
+        currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeRoomProjectile(rps[keys[i]].position, rps[keys[i]].pid, rps[keys[i]].parryLevel, rps[keys[i]].owner)}
+      }
     }
   }
   Object.keys(currentRoomProjectiles).forEach(pid => { if(rps[pid] == undefined) {scene.remove(currentRoomProjectiles[pid].mesh); delete currentRoomProjectiles[pid]; } })
