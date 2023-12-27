@@ -584,10 +584,11 @@ button:hover {
     position: absolute;
     z-index: 200;
     bottom: 30px;
-    left: 50px;
+    left: 100px;
     color: white;
+    text-shadow: 2px 2px red;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 25px;
+    font-size: 35px;
 }
 
 #winner-banner {

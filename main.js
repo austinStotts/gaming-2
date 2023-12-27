@@ -798,7 +798,7 @@ botMesh.position.copy(botBody.position);
 scene.add(botMesh);
 world.addBody(botBody);
 
-// let bot = new TrainingBot(botMesh, botBody);
+let bot = new TrainingBot(botMesh, botBody);
 
 
 
