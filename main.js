@@ -492,7 +492,7 @@ let checkForWall = (start, direction, length) => {
 
 
 const floorTextureLoader = new THREE.TextureLoader();
-const floorTexture = floorTextureLoader.load('./assets/floor.png');
+const floorTexture = floorTextureLoader.load('https://sl-gaming.s3.amazonaws.com/pvpassets/floor.png');
 floorTexture.wrapS = THREE.RepeatWrapping;
 floorTexture.wrapT = THREE.RepeatWrapping;
 
