@@ -141,6 +141,12 @@
     text-decoration: underline;
 }
 
+.icon-wrapper {
+    color: rgb(248, 149, 240);
+    font-family: 'Courier New', Courier, monospace;
+    font-style: italic;
+}
+
 .settings-wrapper {
 
 }
