@@ -31,6 +31,10 @@ export default class Player {
         this.shoot_cooldown = 1500;
         this.projectile_speed = 100;
 
+        this.super_speed = 200;
+        this.power = 4;
+
+
         this.move_player = this.move_player.bind(this);
     }
 
@@ -96,6 +100,41 @@ export default class Player {
             e.target.userData.createdAt -= 1000;
           })
 
-        return ({mesh: pMesh, body: pBody, deleteAfter: 3000});
+        return ({mesh: pMesh, body: pBody, deleteAfter: 3000, isSuper: false});
+    }
+
+    createSuper (camera, parryLevel=1) {
+        let pGeo = new THREE.SphereGeometry(1);
+        let pMat = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+        let pMesh = new THREE.Mesh(pGeo, pMat);
+        pMesh.userData.parryLevel = parryLevel;
+    
+        let pShape = new CANNON.Sphere(2);
+        let pBody = new CANNON.Body({ shape: pShape, mass: 20, linearDamping: 0.01 });
+        
+        let sp = new THREE.Vector3();
+        this.mesh.children[1].children[0].getWorldPosition(sp);
+        pBody.position.set(sp.x, sp.y, sp.z)
+        pMesh.position.copy(pBody.position);
+        
+
+        let target = new THREE.Vector3();
+        camera.getWorldDirection(target);
+        let direction = new CANNON.Vec3(target.x, target.y, target.z);
+        direction.normalize();
+        let initialVelocity = new CANNON.Vec3();
+        direction.scale(this.super_speed, initialVelocity);
+        
+        pBody.userData = { mesh: pMesh, cc: "playerProjectile", createdAt: Date.now(), owner: this.id }
+        pBody.velocity.copy(initialVelocity);
+    
+        pBody.addEventListener("collide", (e) => {
+            console.log(e);
+            if(e.body.userData.cc == "onlineEnemyPlayer") { console.log(`player [${this.id}]   ->   player [${e.body.userData.playerID}]`) }
+            e.body.userData.createdAt -= 1000;
+            e.target.userData.createdAt -= 1000;
+          })
+
+        return ({mesh: pMesh, body: pBody, deleteAfter: 5000, isSuper: true});
     }
 } 

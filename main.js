@@ -24,6 +24,8 @@ let allowCamera = true;
 let onlinePlayerID;
 let onlineRoomID;
 
+let overridewindow = true;
+
 
 let defaultSettings = {
   "volume": "20",
@@ -142,6 +144,8 @@ let playerCollision = (event) => {
     if(PLAYER.time_since_last_parry + PLAYER.perfect_parry_window > Date.now()) {
       // reflect projectile / must be perfect parry to reflect again
       reflectProjectile(event.body, true);
+      PLAYER.power += 1;
+      updateSuper();
     } else if(PLAYER.time_since_last_parry + PLAYER.parry_window > Date.now()) {
       // reflect projectile
       reflectProjectile(event.body, false);
@@ -209,6 +213,9 @@ let onKeyDown = (event) => {
       break
     case currentSettings.keybinds.jump:
       jump();
+      break
+    case "q":
+      useSuper();
       break
     case "f":
       interact();
@@ -290,8 +297,8 @@ let mouseState = {
 
 document.addEventListener('mousemove', (event) => {
   if (!isInventoryOpen) { 
-    cameraRotation.x -= event.movementY * sensitivity;
-    cameraRotation.y -= event.movementX * sensitivity;
+    cameraRotation.x -= event.movementY * currentSettings.sensitivity;
+    cameraRotation.y -= event.movementX * currentSettings.sensitivity;
     cameraRotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraRotation.x));
     camera.rotation.copy(cameraRotation);
     PLAYER.mesh.rotation.y = (camera.rotation.y)
@@ -491,6 +498,9 @@ let checkForWall = (start, direction, length) => {
 
 
 
+// DEFAULT WORLD GEN
+// FLAT FLOOR AND RUG
+
 const floorTextureLoader = new THREE.TextureLoader();
 const floorTexture = floorTextureLoader.load('https://sl-gaming.s3.amazonaws.com/pvpassets/floor.png');
 floorTexture.wrapS = THREE.RepeatWrapping;
@@ -526,6 +536,10 @@ let rug = new THREE.Mesh(new THREE.BoxGeometry(50,0.1,50), new THREE.MeshBasicMa
 rug.position.set(0,0,0);
 scene.add(rug)
 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
 
 
 
@@ -539,8 +553,9 @@ scene.add(rug)
 
 
 
-
-
+// ARENA CREATION
+// SHOULD MOVE TO OWN FILE
+// MAKE MORE CONSTRUCTS
 
 
 let wallGeo = new THREE.BoxGeometry(10,10,1);
@@ -673,7 +688,18 @@ for(let i = 0; i < arena.children.length; i++) {
 }
 
 
-
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
 
 
 
@@ -729,7 +755,12 @@ let jump = () => {
 
  
 let parryLevel = [0x2196F3,0x009688,0x8BC34A,0xFFEB3B,0xFF5722,0xEB144C];
+let superLevel = [0x2196F3,0xFFEB3B,0xFF5722,0xEB144C,0x8E44AD, 0x000000];
 let projectiles = [];
+
+
+// TRAINING BOT
+// CLASS AND CREATION
 
 class TrainingBot {
   constructor(mesh, body) {
@@ -758,12 +789,11 @@ class TrainingBot {
     world.addBody(pBody);
     pMesh.position.copy(pBody.position);
     scene.add(pMesh);
-    if(onlinePlayerID != undefined) {
+    if(onlinePlayerID != undefined) { // TURN OFF IF ONLINE
       projectiles.push({mesh: pMesh, body: pBody, deleteAfter: 3000, owner: "bot"});
     } else {
       projectiles.push({mesh: pMesh, body: pBody, deleteAfter: 3000, owner: null});
     }
-    
     
     let direction = new CANNON.Vec3();
     let target = new CANNON.Vec3(camera.position.x, camera.position.y, camera.position.z)
@@ -801,10 +831,25 @@ world.addBody(botBody);
 let bot = new TrainingBot(botMesh, botBody);
 
 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+// PARRY AND REFLECT PROJECTILES LOCAL
 
 let parry = () => {
   if(PLAYER.time_since_last_parry + PLAYER.parry_cooldown < Date.now()) {
@@ -840,6 +885,15 @@ let showHit = () => {
   }, 450);
 }
 
+let showSuper = () => {
+  headsup.innerText = "super!"
+  headsup.classList.add("grow", "supertext");
+  setTimeout(() => {
+    headsup.classList.remove("grow", "supertext");
+    headsup.innerText = "";
+  }, 450);
+}
+
 let reflectProjectile = (projectile, perfect=false) => {
   if(perfect) {
     PLAYER.time_since_last_parry = 0;
@@ -871,6 +925,10 @@ let reflectProjectile = (projectile, perfect=false) => {
 
 
 
+
+
+
+// UPDATE HP UI
 let updateHP = (p="n/a") => {
   // document.getElementById("hp-label").textContent = PLAYER.hp;
   document.getElementById("hearts").innerText = ("❤️".repeat(PLAYER.hp));
@@ -892,13 +950,16 @@ let updateHP = (p="n/a") => {
 
 
 
+
+// COOLDOWN UI MANAGER
+
 let dcw = document.getElementById("dodge-cooldown-wrapper");
 const dodge_cooldown = document.createElement('circle-progress');
 dodge_cooldown.classList.add("dodge-circle")
 dodge_cooldown.max = 100;
 dodge_cooldown.value = 0;
 dodge_cooldown.textFormat = (v) => {
-  if(v == 100) { return "[R]" }
+  if(v == 100) { return "[RM]" }
   else { return ((PLAYER.dodge_cooldown/1000) - (v/100)*PLAYER.dodge_cooldown/1000).toFixed(1) + "s" }
 };
 dcw.appendChild(dodge_cooldown);
@@ -920,7 +981,7 @@ reload_cooldown.classList.add("reload-circle");
 reload_cooldown.max = 100;
 reload_cooldown.value = 0;
 reload_cooldown.textFormat = (v) => {
-  if(v == 100) { return "[L]" }
+  if(v == 100) { return "[LM]" }
   else { return ((PLAYER.shoot_cooldown/1000) - (v/100)*PLAYER.shoot_cooldown/1000).toFixed(1) + "s" }
 };
 rcw.appendChild(reload_cooldown);
@@ -937,13 +998,27 @@ setInterval(() => {
   reload_cooldown.value = r_value;
 }, 50)
 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+
+
+
+
+
+
+
+
+
+// CLIENT PROJECTILES
+
 let projectiledToRemove = [];
 
 let updateProjectiles = () => {
   if(projectiles.length > 0) {
     for(let i = 0; i < projectiles.length; i++) {
       projectiles[i].mesh.position.copy(projectiles[i].body.position);
-      // console.log(projectiles[0].body.position)
       if(projectiles[i].body.userData.createdAt + projectiles[i].deleteAfter < Date.now()) {
         if(socket) { socket.emit("deleteprojectile", {pid: `p${onlinePlayerID}-${projectiles[i].mesh.uuid}`}, onlineRoomID) }
         scene.remove(projectiles[i].mesh);
@@ -955,21 +1030,25 @@ let updateProjectiles = () => {
   }
 }
 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
 
 
 
+
+
+
+// ONLINE PLAYERS
 
 let sendHit = (player, pid) => {
   socket.emit("playerhit", onlineRoomID, onlinePlayerID, player, pid)
 }
 
-
 let onlinePlayers = {};
 
 let makeOnlinePlayer = (playerID, data) => {
-  // let pg = new THREE.BoxGeometry(2, 4, 2);
-  // let pm = new THREE.MeshBasicMaterial({ color: parryLevel[playerID] });
-  // let pMesh = new THREE.Mesh(pg, pm);
   let pMesh = createComplexPlayer(playerID, currentSettings.showHitboxes);
   pMesh.userData.playerID = playerID;
 
@@ -978,40 +1057,28 @@ let makeOnlinePlayer = (playerID, data) => {
   pBody.userData = { cc: "onlineEnemyPlayer", playerID: playerID };
   pBody.addEventListener("collide", (e) => {
     if(e.body.userData.cc == "playerProjectile") { sendHit(e.target.userData.playerID, `p${onlinePlayerID}-${e.body.userData.mesh.uuid}`); e.body.userData.createdAt -= 3000; showHit()}
-    // if(e.target.userData.cc ==)
   })
-
   pMesh.position.set(data.position.x, data.position.y, data.position.z);
-  // pMesh.rotation.set(data.rotation);
   pBody.position.copy(pMesh.position);
   scene.add(pMesh);
   world.addBody(pBody);
   onlinePlayers[playerID] = {playerID, mesh: pMesh, body: pBody};
-  // console.log(pMesh);
-  // console.log(data.rotation)
 }
 
 let updateOnlinePlayers = (players) => {
-  // console.log(players)
+
   let pkeys = Object.keys(players);
   for(let i = 0; i < pkeys.length; i++) {
     if(onlinePlayers[pkeys[i]] != undefined) {
-      if(pkeys[i] == onlinePlayerID) { // skip if own player
-
+      if(pkeys[i] == onlinePlayerID) { 
+        // skip if own player
       } else {
-        // console.log(players[pkeys[i]].faceRotation)
         onlinePlayers[pkeys[i]].mesh.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
         onlinePlayers[pkeys[i]].mesh.rotation.copy(players[pkeys[i]].rotation);
         onlinePlayers[pkeys[i]].mesh.children[1].rotation.copy(players[pkeys[i]].faceRotation);
         onlinePlayers[pkeys[i]].body.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
       
-        // let r = 0.3 * Math.sin((2*Math.PI) * 15 * (Date.now()/20000) + 1);
-        // let t = 0.1 * Math.sin((2*Math.PI) * 30 * (Date.now()/10000) + 1);
-        // onlinePlayers[pkeys[i]].mesh.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
-        // onlinePlayers[pkeys[i]].mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
-        // onlinePlayers[pkeys[i]].mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t*3*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
-        // onlinePlayers[pkeys[i]].mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t*3*(((onlinePlayers[pkeys[i]].body.velocity.x+1) + (onlinePlayers[pkeys[i]].body.velocity.z+1))/10));
-      
+        // online arm/leg movements
         if(onlinePlayers[pkeys[i]].body.velocity.x + onlinePlayers[pkeys[i]].body.velocity.z > 0) {
           let r = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/1000) + 1);
           let t = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/800) + 1);
@@ -1019,12 +1086,11 @@ let updateOnlinePlayers = (players) => {
           onlinePlayers[pkeys[i]].mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r);
           onlinePlayers[pkeys[i]].mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t);
           onlinePlayers[pkeys[i]].mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t);
-                  
         }
       }
     } else {
-      if(pkeys[i] == onlinePlayerID) { // skip if own player
-
+      if(pkeys[i] == onlinePlayerID) { 
+        // skip if own player
       } else {
         makeOnlinePlayer(pkeys[i], {position: players[pkeys[i]].position, rotation: players[pkeys[i]].rotation});
       }
@@ -1040,6 +1106,74 @@ let removeAllOnlinePlayers = () => {
   onlinePlayers = {};
 }
 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ONLINE PROJECTILES
+
+let currentRoomProjectiles = {}
+
+let makeRoomProjectile = (p, pid, pl, owner) => {
+  let pg = new THREE.SphereGeometry(0.5);
+  let pm = new THREE.MeshBasicMaterial({ color: parryLevel[pl] })
+  let pMesh = new THREE.Mesh(pg,pm);
+  pMesh.position.set(p.x,p.y,p.z);
+  pMesh.userData.pid = pid;
+  pMesh.userData.parryLevel = pl;
+  pMesh.userData.owner = owner;
+  scene.add(pMesh);
+  return pMesh;
+}
+
+let makeSuper = (p, pid, pl, owner) => {
+  let pg = new THREE.SphereGeometry(2);
+  let pm = new THREE.MeshBasicMaterial({ color: superLevel[pl] })
+  let pMesh = new THREE.Mesh(pg,pm);
+  pMesh.position.set(p.x,p.y,p.z);
+  pMesh.userData.pid = pid;
+  pMesh.userData.parryLevel = pl;
+  pMesh.userData.owner = owner;
+  scene.add(pMesh);
+  return pMesh;
+}
+
+let updateRoomProjectiles = (rps) => {
+  let keys = Object.keys(rps);
+  for(let i = 0; i < keys.length; i++) { // if projectile exists
+    if(rps[keys[i]].owner != onlinePlayerID) { // skip if own projectile
+      if(currentRoomProjectiles[rps[keys[i]].pid] != undefined) {
+        currentRoomProjectiles[rps[keys[i]].pid].mesh.position.set(rps[keys[i]].position.x,rps[keys[i]].position.y,rps[keys[i]].position.z)
+      } else { // if new projectile
+        console.log("NEW PROJECTILE: ",rps[keys[i]])
+        if(rps[keys[i]].isSuper) {
+          currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeSuper(rps[keys[i]].position, rps[keys[i]].pid, rps[keys[i]].parryLevel, rps[keys[i]].owner)}
+        } else {
+          currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeRoomProjectile(rps[keys[i]].position, rps[keys[i]].pid, rps[keys[i]].parryLevel, rps[keys[i]].owner)}
+        }
+      }
+    }
+  }
+  Object.keys(currentRoomProjectiles).forEach(pid => { if(rps[pid] == undefined) {scene.remove(currentRoomProjectiles[pid].mesh); delete currentRoomProjectiles[pid]; } })
+}
+
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
 
 
 
@@ -1054,6 +1188,8 @@ let removeAllOnlinePlayers = () => {
 
 
 
+
+// MENU - UI - INPUT METHODS
 
 document.getElementById("tab-close-button").addEventListener("click", (e) => { toggleTab(e) })
 let isTabOpen = false;
@@ -1102,19 +1238,12 @@ let toggleKeybinds = () => {
   if(!isKeybindsOpen) {
     keybinds.showModal();
     isKeybindsOpen = true;
-    // toggleCursorLock();
     keybinds.focus();
   } else {
     keybinds.close();
     isKeybindsOpen = false;
-    // toggleCursorLock();
   }
 }
-
-
-
-
-
 
 let handleKeybindInput = (e) => {
   if(e.key != undefined) {
@@ -1122,13 +1251,11 @@ let handleKeybindInput = (e) => {
     e.target.value = e.key;
     console.log(e.key)
   } else {
-    // e.preventDefault();
     e.target.value = `mb${e.button}`;
   }
-
 }
 
-
+// keys
 document.getElementById("key-forward-value").addEventListener("keydown", handleKeybindInput)
 document.getElementById("key-backward-value").addEventListener("keydown", handleKeybindInput)
 document.getElementById("key-left-value").addEventListener("keydown", handleKeybindInput)
@@ -1138,6 +1265,7 @@ document.getElementById("key-shoot-value").addEventListener("keydown", handleKey
 document.getElementById("key-dodge-value").addEventListener("keydown", handleKeybindInput)
 document.getElementById("key-parry-value").addEventListener("keydown", handleKeybindInput)
 
+// mouse
 document.getElementById("key-forward-value").addEventListener("mousedown", handleKeybindInput)
 document.getElementById("key-backward-value").addEventListener("mousedown", handleKeybindInput)
 document.getElementById("key-left-value").addEventListener("mousedown", handleKeybindInput)
@@ -1146,9 +1274,6 @@ document.getElementById("key-jump-value").addEventListener("mousedown", handleKe
 document.getElementById("key-shoot-value").addEventListener("mousedown", handleKeybindInput)
 document.getElementById("key-dodge-value").addEventListener("mousedown", handleKeybindInput)
 document.getElementById("key-parry-value").addEventListener("mousedown", handleKeybindInput)
-
-
-
 
 let savePlayerSettings = () => {
   currentSettings.volume = document.getElementById("volume-value").value == "Space" ? " " : document.getElementById("volume-value").value
@@ -1163,13 +1288,11 @@ let savePlayerSettings = () => {
   currentSettings.keybinds.dodge = document.getElementById("key-dodge-value").value == "Space" ? " " : document.getElementById("key-dodge-value").value
   currentSettings.keybinds.parry = document.getElementById("key-parry-value").value == "Space" ? " " : document.getElementById("key-parry-value").value
   currentSettings.keybinds.menu = document.getElementById("key-menu-value").value == "Space" ? " " : document.getElementById("key-menu-value").value
-  
 
   window.localStorage.setItem("playersettings", JSON.stringify(currentSettings))
 }
 
 let getPlayerSettings = () => {
-  // console.log(document.getElementById("hitbox-value").checked)
   let settingsString = window.localStorage.getItem("playersettings");
   if(settingsString != undefined) {
     // set html elements to these values
@@ -1186,7 +1309,6 @@ let getPlayerSettings = () => {
     document.getElementById("key-dodge-value").value = settingObj.keybinds.dodge == " " ? "Space" : settingObj.keybinds.dodge;
     document.getElementById("key-parry-value").value = settingObj.keybinds.parry == " " ? "Space" : settingObj.keybinds.parry;
     document.getElementById("key-menu-value").value = settingObj.keybinds.menu == " " ? "Space" : settingObj.keybinds.menu;
-
   } else {
     window.localStorage.setItem("playersettings", JSON.stringify(defaultSettings));
   }
@@ -1196,42 +1318,11 @@ getPlayerSettings();
 
 
 
-
-
-
-
-
-
-
-
-let currentRoomProjectiles = {}
-
-let makeRoomProjectile = (p, pid, pl, owner) => {
-  let pg = new THREE.SphereGeometry(0.5);
-  let pm = new THREE.MeshBasicMaterial({ color: parryLevel[pl] })
-  let pMesh = new THREE.Mesh(pg,pm);
-  pMesh.position.set(p.x,p.y,p.z);
-  pMesh.userData.pid = pid;
-  pMesh.userData.parryLevel = pl;
-  pMesh.userData.owner = owner;
-  scene.add(pMesh);
-  return pMesh;
-}
-
-let updateRoomProjectiles = (rps) => {
-  // console.log(rps)
-  let keys = Object.keys(rps);
-  for(let i = 0; i < keys.length; i++) { // update Proj
-    if(rps[keys[i]].owner != onlinePlayerID) {
-      if(currentRoomProjectiles[rps[keys[i]].pid] != undefined) {
-        currentRoomProjectiles[rps[keys[i]].pid].mesh.position.set(rps[keys[i]].position.x,rps[keys[i]].position.y,rps[keys[i]].position.z)
-      } else { // new Proj
-        currentRoomProjectiles[rps[keys[i]].pid] = {mesh: makeRoomProjectile(rps[keys[i]].position, rps[keys[i]].pid, rps[keys[i]].parryLevel, rps[keys[i]].owner)}
-      }
-    }
-  }
-  Object.keys(currentRoomProjectiles).forEach(pid => { if(rps[pid] == undefined) {scene.remove(currentRoomProjectiles[pid].mesh); delete currentRoomProjectiles[pid]; } })
-}
+// END OF MENU/INPUT METHODS 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
 
 
 
@@ -1245,16 +1336,22 @@ let updateRoomProjectiles = (rps) => {
 
 
 
+
+
+
+
+
+
+
+// SOCKET METHODS
+// ONLINE AND ROOM METHODS
 
 import axios from "axios";
 import io from "socket.io-client";
 
 
 let ld = document.getElementById("login-dialog");
-// ld.showModal();
-
 let od = document.getElementById("online-dialog");
-// od.showModal();
 
 let c = document.getElementById("connect");
 let d = document.getElementById("disconnect");
@@ -1271,8 +1368,6 @@ ridl.addEventListener("click", () => {
     navigator.clipboard.writeText(onlineRoomID)
 });
 
-
-// let r = document.getElementById("roomid-label");
 let socket;
 let inRoom = false;
 let isLoginOpen = false;
@@ -1308,8 +1403,7 @@ document.getElementById("connect").addEventListener("click", (event) => {
     socket = io("http://34.239.48.37/");
     // socket = io("http://localhost:4001");
     socket.on("roomid", (id, playerID) => {
-      console.log(socket)
-      // console.log(playerID)
+      console.log(socket);
       onlinePlayerID = playerID;
       re.textContent = "";
       inRoom = true;
@@ -1325,10 +1419,9 @@ document.getElementById("connect").addEventListener("click", (event) => {
         onlinePlayerID = undefined;
     })
     socket.on("allpositions", (players) => {
-      // console.log(players)
       updateOnlinePlayers(players);
     })
-    socket.on("roomprojectiles", rps => { updateRoomProjectiles(rps) }) // actually create and move said projectiles... the hard part... maybe?
+    socket.on("roomprojectiles", rps => { updateRoomProjectiles(rps) })
     socket.on("takehit", (playerID, pid) => {
       console.log(`take hit: ${playerID}`);
       if(playerID == onlinePlayerID) {
@@ -1350,10 +1443,7 @@ document.getElementById("connect").addEventListener("click", (event) => {
         w.innerText = ""
       }, 2900);
     })
-    socket.on("removeplayer", (playerID) => { console.log("REMOVIN G PLAYER", playerID); scene.remove(onlinePlayers[playerID].mesh); world.removeBody(onlinePlayers[playerID].body); delete onlinePlayers[playerID]})
-    // socket.on("pong", (ms) => {
-    //   ldPing.innerText = `ping: ${ms}ms`;
-    // })
+    socket.on("removeplayer", (playerID) => { console.log("REMOVING PLAYER", playerID); scene.remove(onlinePlayers[playerID].mesh); world.removeBody(onlinePlayers[playerID].body); delete onlinePlayers[playerID]})
   })  
 
 window.onclose = () => {
@@ -1384,45 +1474,26 @@ document.getElementById("leaveroom").addEventListener("click", (event) => {
   }
 })
 
-let live_data = document.getElementById("live-data");
-// let ic = document.createElement("li");
-// ic.innerText = "connected: false";
-// ic.id = "data-connected-value"
-// ic.classList.add("data-list-item");
-// live_data.appendChild(ic);
-
-// let pn = document.createElement("li");
-// pn.textContent = onlinePlayerID;
-// pn.id = "data-playernumber-value"
-// pn.classList.add("data-list-item");
-// live_data.appendChild(id);
-
 let ldC = document.getElementById("ld-connected");
 let ldP = document.getElementById("ld-playernumber");
 let ldFPS = document.getElementById("ld-fps");
 let ldPing = document.getElementById("ld-ping");
 
-
 setInterval(() => {
     if(socket) {
         if(socket.connected) {
-
           const startms = Date.now();
-
-          // volatile, so the packet will be discarded if the socket is not connected
           socket.volatile.emit("ping", () => {
             const latency = Date.now() - startms;
             ldPing.innerText = `ping: ${latency}ms`
           });
-
             ldC.innerText = "connected: true";
             ldC.classList.remove("ld-false");
             ldC.classList.add("ld-true");
-
             ldP.innerText = `player number: ${onlinePlayerID}`;
-
             document.getElementById("connect").classList.add("connection-valid");
             d.classList.remove("unclickable");
+
             if(!inRoom) {
                 [mr, jr].forEach(e => { e.classList.remove("unclickable") });
                 rid.classList.remove("no-input");
@@ -1433,21 +1504,16 @@ setInterval(() => {
                 lr.classList.remove("unclickable");
             }
         } else {
-
           ldC.innerText = "connected: false";
           ldC.classList.remove("ld-true");
           ldC.classList.add("ld-false");
-
           ldP.innerText = `player number: n/a`;
-
           document.getElementById("connect").classList.remove("connection-valid");
           [d, mr, jr, lr].forEach(e => {e.classList.add("unclickable")});
           rid.classList.add("no-input");
         }          
     }
 }, 500);
-
-
 
 document.getElementById("login-button").addEventListener("click", (e) => {
   if(!isLoginOpen) {
@@ -1463,37 +1529,44 @@ document.getElementById("online-button").addEventListener("click", (e) => {
   }
 })
 
+// END OF SOCKET METHODS
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
+// __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
 
 
 
 
 
 
+
+
+
+
+
+
+// ONLINE PLAYER COLLISION
 let onlinePlayerCollision = (pid) => {
   socket.emit("deleteprojectile", pid, ridl.innerText);
+  // perfect parry
   if(PLAYER.time_since_last_parry + PLAYER.perfect_parry_window > Date.now()) {
-    // if(true) {
-    // reflect projectile / must be perfect parry to reflect again
-    // reflectProjectile(event.body, true);
-
-    // fire a new projectile with a new parry level
-    // console.log(currentRoomProjectiles[pid])
     let p = PLAYER.createProjectile(camera, currentRoomProjectiles[pid].mesh.userData.parryLevel+1);
     scene.add(p.mesh);
     world.addBody(p.body);
     projectiles.push(p);
-
-  } else if(PLAYER.time_since_last_parry + PLAYER.parry_window > Date.now()) {
-    // reflect projectile
-    // reflectProjectile(event.body, false);
-
-    // fire a new projectile with a new parry level
+    PLAYER.power += 1;
+    updateSuper();
+  }
+  // regular parry
+  else if(PLAYER.time_since_last_parry + PLAYER.parry_window > Date.now()) {
     let p = PLAYER.createProjectile(camera, currentRoomProjectiles[pid].mesh.userData.parryLevel);
     scene.add(p.mesh);
     world.addBody(p.body);
     projectiles.push(p);
-
-  } else {
+  }
+  // player was hit
+  else {
     PLAYER.hp -= Number(currentRoomProjectiles[pid].mesh.userData.parryLevel) +1;
     updateHP(currentRoomProjectiles[pid].mesh.userData.owner);
     let damage = document.getElementById("damage");
@@ -1503,7 +1576,6 @@ let onlinePlayerCollision = (pid) => {
       damage.classList.remove("damage");
       damage.hidden = true;
     }, 250);
-    // take damage / delete projectile
   }
 }
 
@@ -1520,19 +1592,11 @@ let sendPlayerPositions = () => {
   }
 }
 
-// cannot send whole CANNON objects and THREE meshes 
-// just send position and metadata as an object
-// and each user will have to make the projectiles on thier own
-
-// okay new issue... 
-// every frame the same projectiles get added to the server,
-// and never get deleted
-// and even 1 projectile will be 100s after a couple seconds
 let sendProjectilePositions = () => {
   if(onlinePlayerID != undefined) {
     let projectilesToEmit = [];
     projectiles.forEach(p => {
-      projectilesToEmit.push({position: p.body.position, pid: `p${onlinePlayerID}-${p.mesh.uuid}`, owner: onlinePlayerID, parryLevel: p.mesh.userData.parryLevel})
+      projectilesToEmit.push({position: p.body.position, pid: `p${onlinePlayerID}-${p.mesh.uuid}`, owner: onlinePlayerID, parryLevel: p.mesh.userData.parryLevel, isSuper: p.isSuper})
     })
     socket.emit("projectiles", projectilesToEmit, onlinePlayerID, onlineRoomID)
   }
@@ -1541,8 +1605,91 @@ let sendProjectilePositions = () => {
 
 
 
-// let a = ["hello", "tall", "cat"];
-// console.log({...a})
+
+
+
+
+
+
+
+
+
+// UPDATE SUPER
+let superWrapper = document.getElementById("super-wrapper");
+let cell1 = document.getElementById("cell1");
+let cell2 = document.getElementById("cell2");
+let cell3 = document.getElementById("cell3");
+let cell4 = document.getElementById("cell4");
+
+let updateSuper = () => {
+  if(PLAYER.power >= 4) {
+    cell1.classList.remove("hidden");
+    cell2.classList.remove("hidden");
+    cell3.classList.remove("hidden");
+    cell4.classList.remove("hidden");
+    superWrapper.classList.remove("not-full");
+    superWrapper.classList.add("full");
+  } else if(PLAYER.power == 3) {
+    cell1.classList.remove("hidden");
+    cell2.classList.remove("hidden");
+    cell3.classList.remove("hidden");
+
+    cell4.classList.add("hidden");
+    
+    superWrapper.classList.remove("full");
+    superWrapper.classList.add("not-full");
+  } else if(PLAYER.power == 2) {
+    cell1.classList.remove("hidden");
+    cell2.classList.remove("hidden");
+    
+    cell3.classList.add("hidden");
+    cell4.classList.add("hidden");
+    
+    superWrapper.classList.remove("full");
+    superWrapper.classList.add("not-full");
+  } else if(PLAYER.power == 1) {
+    cell1.classList.remove("hidden");
+    
+    cell2.classList.add("hidden");
+    cell3.classList.add("hidden");
+    cell4.classList.add("hidden");
+    
+    superWrapper.classList.remove("full");
+    superWrapper.classList.add("not-full");
+  } else {
+
+    cell1.classList.add("hidden");
+    cell2.classList.add("hidden");
+    cell3.classList.add("hidden");
+    cell4.classList.add("hidden");
+    
+    superWrapper.classList.remove("full");
+    superWrapper.classList.add("not-full");
+  }
+}
+
+updateSuper();
+
+
+
+let useSuper = () => {
+  if(PLAYER.power >= 4) {
+    showSuper();
+    let playerSuper = PLAYER.createSuper(camera);
+    projectiles.push(playerSuper);
+    scene.add(playerSuper.mesh);
+    world.addBody(playerSuper.body);
+    PLAYER.power = 0;
+    updateSuper();
+    // PLAYER.time_since_last_shoot = Date.now();
+  }
+}
+
+
+
+
+
+
 
 
 
@@ -1570,11 +1717,6 @@ setInterval(() => {
 
 
 
-
-
-
-
-
 let getPlayerData = (player) => {
   let position = player.body.position;
   let rotation = player.mesh.rotation;
@@ -1582,13 +1724,6 @@ let getPlayerData = (player) => {
   // console.log(faceRotation)
   return {position, rotation, faceRotation}
 }
-
-
-
-
-
-
-
 
 
 
@@ -1609,29 +1744,16 @@ let materialArray = new Array(5).fill(new THREE.MeshBasicMaterial({ color: 0xFFF
 
 })
 
-// headMesh.position.set(-10,2,-10)
-// scene.add(headMesh);
-
-console.log("headmesh made");
 
 
 
 
-  let playerX = createComplexPlayer();
-  // playerX.children.forEach((part, i) => {
-  //   part.position.set(3*i, 2, 0);
-  //   // scene.add(playerX[part])
-  // })
+// PLAYER X DUMMY
+let playerX = createComplexPlayer();
 
-  playerX.position.set(10, 3, -5)
-  scene.add(playerX)
-
- 
-
-
-
-
-// console.log(playerX)
+playerX.position.set(10, 3, -5);
+playerX.rotateY(Math.PI/2);
+scene.add(playerX);
 
 setInterval(() => {
   let r = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/1000) + 1);
@@ -1642,9 +1764,6 @@ setInterval(() => {
   playerX.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t);
 }, 30)
 
-// setInterval(()=> {
-//   playerX.rotateOnAxis(new THREE.Vector3(0,1,0), 0.1)
-// },30)
 
 
 
@@ -1656,33 +1775,31 @@ setInterval(() => {
 
 
 
-// savePlayerSettings();
+
 getPlayerSettings();
 savePlayerSettings();
 create_player();
+
 // Animate function
 const animate = () => {
-
-    let rate = 1/60;
-    world.step(rate, rate, 10);
-    // updateCooldowns();
-    
-    playerInputs();
-    updateGame();
-    updateProjectiles();
-    sendPlayerPositions();
-    sendProjectilePositions();
+  let rate = 1/60;
+  world.step(rate, rate, 10);
   
-    bodiesToRemove.forEach(removeBodies);
-    meshToRemove.forEach(removeMesh);
-      
-    renderer.render(scene, camera);
-    frames++;
+  playerInputs();
+  updateGame();
+  updateProjectiles();
+  sendPlayerPositions();
+  sendProjectilePositions();
+
+  bodiesToRemove.forEach(removeBodies);
+  meshToRemove.forEach(removeMesh);
+    
+  renderer.render(scene, camera);
+  frames++;
 };
 
 setInterval(() => {
-  if(!document.webkitHidden) { requestAnimationFrame(animate); }
+  if(!document.webkitHidden || overridewindow) { requestAnimationFrame(animate); }
 }, 1000 / 60);
-
 
 animate()
