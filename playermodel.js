@@ -41,7 +41,7 @@ export default (id, hitbox=false, isSelf=false) => {
     armMeshR.position.setX(-1.3);
     legMeshL.position.set(0.4, -2.5, 0);
     legMeshR.position.set(-0.4, -2.5, 0);
-    crosshair.position.set(0,0,-1);
+    crosshair.position.set(0,0,-1.3);
 
     if(hitbox) {
         let hb = new THREE.Mesh(new THREE.BoxGeometry(2.5,6,2.5), new THREE.MeshBasicMaterial({ color: 0xFF00FF, wireframe: true }))

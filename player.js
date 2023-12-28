@@ -66,7 +66,7 @@ export default class Player {
         pMesh.userData.parryLevel = parryLevel;
     
         let pShape = new CANNON.Sphere(1);
-        let pBody = new CANNON.Body({ shape: pShape, mass: 1, linearDamping: 0.05 });
+        let pBody = new CANNON.Body({ shape: pShape, mass: 5, linearDamping: 0.05 });
         
         // let s = new THREE.Vector3();
         // camera.getWorldDirection(s);
@@ -79,14 +79,21 @@ export default class Player {
         console.log(this.mesh.children[1].children[0])
         let sp = new THREE.Vector3();
         this.mesh.children[1].children[0].getWorldPosition(sp);
-        pBody.position.set(sp.x, sp.y, sp.z)
+        pBody.position.set(sp.x, sp.y, sp.z);
         pMesh.position.copy(pBody.position);
         
+        let ct = new THREE.Vector3();
+        camera.getWorldPosition(ct);
+        let tt = new THREE.Vector3();
+        tt.subVectors(pMesh.position, ct);
+        console.log("SUB VECTOR: ", tt)
 
         let target = new THREE.Vector3();
         camera.getWorldDirection(target);
-        let direction = new CANNON.Vec3(target.x, target.y, target.z);
-        direction.normalize();
+        console.log("target: ",target);
+        // let direction = new CANNON.Vec3(target.x, target.y, target.z);
+        let direction = new CANNON.Vec3(tt.x, tt.y, tt.z);
+        // direction.normalize();
         let initialVelocity = new CANNON.Vec3();
         direction.scale(this.projectile_speed, initialVelocity);
         
