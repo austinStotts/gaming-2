@@ -3,7 +3,7 @@ import * as CANNON from "cannon-es";
 import ch from "./crosshair";
 
 
-export default (id, hitbox=false) => {
+export default (id, hitbox=false, isSelf=false) => {
     // make a player model
     // 2 legs
     // 2 arms
@@ -17,10 +17,10 @@ export default (id, hitbox=false) => {
     let armGeo = new THREE.BoxGeometry(0.75,2,0.75);
     let legGeo = new THREE.BoxGeometry(0.75,2,0.75);
 
-    let torsoMat = new THREE.MeshBasicMaterial({ color: playerColors[id] || 0xF08080 });
-    let headMat = new THREE.MeshBasicMaterial({ color: 0x8863ff });
-    let armMat = new THREE.MeshBasicMaterial({ color: 0x63ff63 });
-    let legMat = new THREE.MeshBasicMaterial({ color: 0xffd063 });
+    let torsoMat = new THREE.MeshBasicMaterial({ color: playerColors[id] || 0xF08080, wireframe: isSelf });
+    let headMat = new THREE.MeshBasicMaterial({ color: 0x8863ff, wireframe: isSelf });
+    let armMat = new THREE.MeshBasicMaterial({ color: 0x63ff63, wireframe: isSelf });
+    let legMat = new THREE.MeshBasicMaterial({ color: 0xffd063, wireframe: isSelf });
 
     let torsoMesh = new THREE.Mesh(torsoGeo, torsoMat);
     let headMesh = new THREE.Mesh(headGeo, headMat);
