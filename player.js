@@ -32,7 +32,7 @@ export default class Player {
         this.projectile_speed = 100;
 
         this.super_speed = 200;
-        this.power = 4;
+        this.power = 0;
 
 
         this.move_player = this.move_player.bind(this);
