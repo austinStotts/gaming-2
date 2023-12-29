@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 // Set up scene, camera, renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -26,6 +28,7 @@ scene.add(particles);
 // Update function for animation
 const update = () => {
     // Update particle positions based on the moving object's position
+    movingObject.position.z -= 0.5;
     particlePositions.set(movingObject.position.toArray().map(val => val + Math.random() * 0.1 - 0.05));
 
     // Update other animation logic here
