@@ -1310,8 +1310,8 @@ document.getElementById("signup").addEventListener("click", (event) => {
 })
 
 document.getElementById("connect").addEventListener("click", (event) => {
-    // socket = io("http://34.239.48.37/");
-    socket = io("http://localhost:4001");
+    socket = io("http://34.239.48.37/");
+    // socket = io("http://localhost:4001");
     socket.on("roomid", (id, playerID) => {
       console.log(socket);
       onlinePlayerID = playerID;
