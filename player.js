@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from "cannon-es";
+
+import ParticleSystem from './particlesystem';
 // import createComplexPlayer from "./player_v2";
 
 let parryLevel = [0x2196F3,0x009688,0x8BC34A,0xFFEB3B,0xFF5722,0xEB144C];
@@ -99,6 +101,8 @@ export default class Player {
         
         pBody.userData = { mesh: pMesh, cc: "playerProjectile", createdAt: Date.now(), owner: this.id }
         pBody.velocity.copy(initialVelocity);
+
+        pMesh.userData.body = pBody;
     
         pBody.addEventListener("collide", (e) => {
             console.log(e);
@@ -107,7 +111,9 @@ export default class Player {
             e.target.userData.createdAt -= 1000;
           })
 
-        return ({mesh: pMesh, body: pBody, deleteAfter: 3000, isSuper: false});
+        let ps = new ParticleSystem({parent: pMesh, camera})
+
+        return ({mesh: pMesh, body: pBody, ps, deleteAfter: 3000, isSuper: false});
     }
 
     createSuper (camera, parryLevel=1) {
@@ -135,6 +141,8 @@ export default class Player {
         pBody.userData = { mesh: pMesh, cc: "playerProjectile", createdAt: Date.now(), owner: this.id }
         pBody.velocity.copy(initialVelocity);
     
+        pMesh.userData.body = pBody;
+
         pBody.addEventListener("collide", (e) => {
             console.log(e);
             if(e.body.userData.cc == "onlineEnemyPlayer") { console.log(`player [${this.id}]   ->   player [${e.body.userData.playerID}]`) }
@@ -142,6 +150,8 @@ export default class Player {
             e.target.userData.createdAt -= 1000;
           })
 
-        return ({mesh: pMesh, body: pBody, deleteAfter: 5000, isSuper: true});
+        let ps = new ParticleSystem({parent: pMesh, camera})
+
+        return ({mesh: pMesh, body: pBody, ps, deleteAfter: 5000, isSuper: true});
     }
 } 

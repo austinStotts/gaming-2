@@ -13,6 +13,7 @@ import createComplexPlayer from "./playermodel.js";
 import arena1 from "./arena1.js"
 import arena2 from "./arena2.js"
 
+import ParticleSystem from './particlesystem.js';
 
 
 // Global Variables
@@ -105,7 +106,7 @@ camera.position.set(2,5,0);
 
 // inFrontOfCamera.position.z -= 2;
 
-const renderer = new THREE.WebGLRenderer({ powerPreference: "high-performance" });
+const renderer = new THREE.WebGLRenderer({ powerPreference: "high-performance", antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.getContext().linewidth = 6;
 document.body.appendChild(renderer.domElement);
@@ -929,6 +930,7 @@ let updateProjectiles = () => {
   if(projectiles.length > 0) {
     for(let i = 0; i < projectiles.length; i++) {
       projectiles[i].mesh.position.copy(projectiles[i].body.position);
+      if(projectiles[i].ps != undefined) {projectiles[i].ps.Step(0.01)}
       if(projectiles[i].body.userData.createdAt + projectiles[i].deleteAfter < Date.now()) {
         if(socket) { socket.emit("deleteprojectile", {pid: `p${onlinePlayerID}-${projectiles[i].mesh.uuid}`}, onlineRoomID) }
         scene.remove(projectiles[i].mesh);
@@ -1753,7 +1755,7 @@ setInterval(() => {
 
 
 
-
+// let ps = new ParticleSystem({parent: bot.mesh, camera})
 
 
 
@@ -1786,6 +1788,7 @@ const animate = () => {
   sendPlayerPositions();
   sendProjectilePositions();
 
+  // ps.Step(0.01)
 
   // batchSystem.update();
 
