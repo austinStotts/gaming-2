@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from "cannon-es";
 // import createComplexPlayer from "./player_v2";
 
-
+let parryLevel = [0x2196F3,0x009688,0x8BC34A,0xFFEB3B,0xFF5722,0xEB144C];
 
 export default class Player {
     constructor(id) {
@@ -59,11 +59,11 @@ export default class Player {
         this.hp = this.hp - this.armor.take_damage(n);
     }
 
-    createProjectile (camera, parryLevel=0) {
+    createProjectile (camera, pl=0) {
         let pGeo = new THREE.SphereGeometry(0.5);
-        let pMat = new THREE.MeshBasicMaterial({ color: 0x2196F3 });
+        let pMat = new THREE.MeshBasicMaterial({ color: parryLevel[pl] });
         let pMesh = new THREE.Mesh(pGeo, pMat);
-        pMesh.userData.parryLevel = parryLevel;
+        pMesh.userData.parryLevel = pl;
     
         let pShape = new CANNON.Sphere(1);
         let pBody = new CANNON.Body({ shape: pShape, mass: 5, linearDamping: 0.05 });

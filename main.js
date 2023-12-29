@@ -743,42 +743,61 @@ let parry = () => {
   }
 }
 
+
+
 let headsup = document.getElementById("headsup");
 let showParry = (perfect=false) => {
   if(perfect) {
-    headsup.innerText = "perfect!"
-    headsup.classList.add("grow", "perfect");
+    let e = document.createElement("div");
+    e.innerText = "perfect!"
+    headsup.appendChild(e);
+    e.classList.add("grow", "perfect");
     setTimeout(() => {
-      headsup.classList.remove("grow", "perfect");
-      headsup.innerText = "";
+      headsup.removeChild(e)
     }, 450);
   } else {
-    headsup.innerText = "parry!"
-    headsup.classList.add("grow", "parry");
+    let e = document.createElement("div");
+    e.innerText = "parry!"
+    headsup.appendChild(e);
+    e.classList.add("grow", "parry");
     setTimeout(() => {
-      headsup.classList.remove("grow", "parry");
-      headsup.innerText = "";
+      headsup.removeChild(e)
     }, 450);
   }
 }
 
 let showHit = () => {
-  headsup.innerText = "hit!"
-  headsup.classList.add("grow", "hit");
+  let e = document.createElement("div");
+  e.innerText = "hit!"
+  headsup.appendChild(e);
+  e.classList.add("grow", "hit");
   setTimeout(() => {
-    headsup.classList.remove("grow", "hit");
-    headsup.innerText = "";
+    headsup.removeChild(e)
   }, 450);
 }
 
 let showSuper = () => {
-  headsup.innerText = "super!"
-  headsup.classList.add("grow", "supertext");
+  let e = document.createElement("div");
+  e.innerText = "super!"
+  e.classList.add("grow", "supertext");
+  headsup.appendChild(e);
   setTimeout(() => {
-    headsup.classList.remove("grow", "supertext");
-    headsup.innerText = "";
+    headsup.removeChild(e)
   }, 450);
 }
+
+let showEnemyParry = () => {
+  let e = document.createElement("div");
+  e.innerText = "false hit!"
+  headsup.appendChild(e);
+  e.classList.add("grow", "enemyparry");
+  setTimeout(() => {
+    headsup.removeChild(e)
+  }, 450);
+}
+
+
+
 
 let reflectProjectile = (projectile, perfect=false) => {
   if(perfect) {
@@ -1286,8 +1305,8 @@ document.getElementById("signup").addEventListener("click", (event) => {
 })
 
 document.getElementById("connect").addEventListener("click", (event) => {
-    socket = io("http://34.239.48.37/");
-    // socket = io("http://localhost:4001");
+    // socket = io("http://34.239.48.37/");
+    socket = io("http://localhost:4001");
     socket.on("roomid", (id, playerID) => {
       console.log(socket);
       onlinePlayerID = playerID;
@@ -1330,6 +1349,7 @@ document.getElementById("connect").addEventListener("click", (event) => {
       }, 2900);
     })
     socket.on("removeplayer", (playerID) => { console.log("REMOVING PLAYER", playerID); scene.remove(onlinePlayers[playerID].mesh); world.removeBody(onlinePlayers[playerID].body); delete onlinePlayers[playerID]})
+    socket.on("parry", (playerID) => { console.log("THE ENEMY HAS PARRIED", playerID); if(playerID == onlinePlayerID) { showEnemyParry() }})
   })  
 
 window.onclose = () => {
@@ -1437,6 +1457,7 @@ let onlinePlayerCollision = (pid) => {
   socket.emit("deleteprojectile", pid, ridl.innerText);
   // perfect parry
   if(PLAYER.time_since_last_parry + PLAYER.perfect_parry_window > Date.now()) {
+    socket.emit("parry", onlineRoomID, currentRoomProjectiles[pid].mesh.userData.owner);
     let p = PLAYER.createProjectile(camera, currentRoomProjectiles[pid].mesh.userData.parryLevel+1);
     scene.add(p.mesh);
     world.addBody(p.body);

@@ -1,0 +1,90 @@
+html {
+    background-color: black;
+}
+
+.logo-wrapper {
+    position: absolute;
+    font-family: 'Josefin Sans', sans-serif;
+    font-weight: 800;
+    top: 100px;
+    left: 100px;
+    background-color: white;
+    height: 70px;
+}
+
+.first {
+    display: inline;
+    position: relative;
+    top: -5px;
+    font-size: 80px;
+    letter-spacing: -3px;
+    height: 100px;
+
+    color: rgb(255, 0, 106);
+    /* animation: pulse2 1.5s infinite; */
+}
+
+.second {
+    display: inline;
+    position: relative;
+    /* top: 60px;
+    left: -60px; */
+    font-size: 80px;
+    letter-spacing: -3px;
+
+    color: rgb(0, 123, 255);
+    /* animation: pulse1 1.5s infinite; */
+}
+
+.invert {
+    background-color: black;
+    color: white;
+    height: 100px;
+}
+
+@-webkit-keyframes pulse1 {
+    0% {
+        -webkit-box-shadow: 0 0 0 0 rgb(255, 175, 235);
+    }
+    70% {
+        -webkit-box-shadow: 0 0 0 15px rgba(255,0,0, 0);
+    }
+    100% {
+        -webkit-box-shadow: 0 0 0 0 rgba(255,0,0, 0);
+    }
+}
+
+@-webkit-keyframes pulse2 {
+    0% {
+        -webkit-box-shadow: 0 0 0 0 rgb(255, 175, 235);
+    }
+    70% {
+        -webkit-box-shadow: 0 0 0 15px rgba(255,0,0, 0);
+    }
+    100% {
+        -webkit-box-shadow: 0 0 0 0 rgba(255,0,0, 0);
+    }
+}
+
+.blink {
+    animation: blinker 2s linear infinite;
+}
+  
+@keyframes blinker {
+    20% {
+        opacity: 0;
+    }
+    80% {
+        opacity: 0;
+    }
+}
+
+.mono {
+    animation: mono 1s linear infinite;
+}
+
+@keyframes mono {
+    50% {
+        transform: rotateZ(90deg);
+    }
+}

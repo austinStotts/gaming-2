@@ -664,7 +664,7 @@ button:hover {
     font-size: 30px;
     /* color: red; */
     color: crimson;
-    transform: scale(0);
+    
     /* text-shadow:
     0 0 7px rgb(244, 60, 97),
     0 0 10px rgb(244, 60, 97),
@@ -674,6 +674,12 @@ button:hover {
     0 0 92px rgb(244, 60, 97),
     0 0 102px rgb(244, 60, 97),
     0 0 151px rgb(244, 60, 97); */
+}
+
+.headsup-wrapper > div {
+    transform: scale(0);
+    position: absolute;
+    text-wrap: nowrap;
 }
 
 .grow {
@@ -707,22 +713,32 @@ button:hover {
 .perfect {
     color: rgb(80, 156, 255);
     text-shadow: 2px 2px yellow, -2px -2px rgb(0, 255, 153);
+    z-index: 301;
 }
 
 .parry {
     color: rgb(222, 75, 75);
     text-shadow: 2px 2px orange, -2px -2px rgb(255, 0, 89);
+    z-index: 301;
 }
 
 .hit {
     color: rgb(255, 126, 255);
     text-shadow: 2px 2px pink, -2px -2px rgb(245, 130, 255);
+    z-index: 301;
 }
 
 .supertext {
     font-size: 40px;
     color: rgb(255, 70, 70);
     text-shadow: 2px 2px rgb(0, 106, 255),-2px -2px rgb(9, 255, 0);
+    z-index: 302;
+}
+
+.enemyparry {
+    color: rgb(221, 0, 255);
+    text-shadow: 2px 2px rgb(132, 0, 255),-2px -2px rgb(255, 0, 38);
+    z-index: 303;
 }
 
 
