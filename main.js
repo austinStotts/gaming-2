@@ -6,9 +6,14 @@ import 'js-circle-progress';
 import Player from './player.js';
 import { acceleratedRaycast } from 'three-mesh-bvh'
 
+// import quarkScene from "./particle.js";
+import * as THREEQUARKS from "three.quarks"
+
 import createComplexPlayer from "./playermodel.js";
 import arena1 from "./arena1.js"
 import arena2 from "./arena2.js"
+
+
 
 // Global Variables
 let sensitivity = 0.0002;
@@ -1637,6 +1642,7 @@ let getPlayerData = (player) => {
 
 
 
+
 let textureLoader = new THREE.TextureLoader();
 textureLoader.load("./assets/face_01.png", (texture) => {
 
@@ -1682,6 +1688,88 @@ setInterval(() => {
 
 
 
+// ATTEMPT TO ADD PARTICLES
+// NEED MORE TIME
+
+
+// let clock = new THREE.Clock(true);
+// const batchSystem = new THREEQUARKS.BatchedParticleRenderer();
+// const texture = new THREE.TextureLoader().load("./assets/dot.png");
+// // Particle system configuration
+// const muzzle = {
+//     duration: 1,
+//     looping: false,
+//     startLife: new THREEQUARKS.IntervalValue(0.1, 0.2),
+//     startSpeed: new THREEQUARKS.ConstantValue(0),
+//     startSize: new THREEQUARKS.IntervalValue(1, 5),
+//     startColor: new THREEQUARKS.ConstantColor(new THREE.Vector4(1, 1, 1, 1)),
+//     worldSpace: false,
+
+//     maxParticle: 5,
+//     emissionOverTime: new THREEQUARKS.ConstantValue(0),
+//     emissionBursts: [{
+//         time: 1,
+//         count: 1,
+//         cycle: 1,
+//         interval: 0.01,
+//         probability: 1,
+//     }],
+//     shape: new THREEQUARKS.PointEmitter(),
+//     texture: new THREE.MeshBasicMaterial({map: texture, transparent: true, blending: THREE.AdditiveBlending}),
+//     startTileIndex: 91,
+//     uTileCount: 10,
+//     vTileCount: 10,
+//     renderOrder: 2,
+//     renderMode: THREEQUARKS.RenderMode.Mesh
+// };
+
+// // Create particle system based on your configuration
+// let muzzle1 = new THREEQUARKS.ParticleSystem(batchSystem, {muzzle});
+// // developers can customize how the particle system works by
+// // using existing behavior or adding their own Behavior.
+// muzzle1.addBehavior(new THREEQUARKS.ColorOverLife(new THREEQUARKS.ColorRange(new THREE.Vector4(1, 0.3882312, 0.125, 1), new THREE.Vector4(1, 0.826827, 0.3014706, 1))));
+// muzzle1.addBehavior(new THREEQUARKS.SizeOverLife(new THREEQUARKS.PiecewiseBezier([[new THREEQUARKS.Bezier(1, 0.95, 0.75, 0), 0]])));
+// // texture atlas animation
+// muzzle1.addBehavior(new THREEQUARKS.FrameOverLife(new THREEQUARKS.PiecewiseBezier([[new THREEQUARKS.Bezier(91, 94, 97, 100), 0]])));
+// muzzle1.emitter.name = 'muzzle1';
+// muzzle1.emitter.position.x = 0;
+// muzzle1.emitter.position.y = 5;
+// muzzle1.emitter.position.z = -15;
+
+
+
+
+// // Add emitter to your Object3D
+// console.log(muzzle1)
+// scene.add(muzzle1.emitter);
+// scene.add(batchSystem); 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// let qs = new quarkScene()
+
 
 getPlayerSettings();
 savePlayerSettings();
@@ -1698,6 +1786,9 @@ const animate = () => {
   sendPlayerPositions();
   sendProjectilePositions();
 
+
+  // batchSystem.update();
+
   bodiesToRemove.forEach(removeBodies);
   meshToRemove.forEach(removeMesh);
     
@@ -1710,3 +1801,47 @@ setInterval(() => {
 }, 1000 / 60);
 
 animate()
+// scene.add(flame)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
