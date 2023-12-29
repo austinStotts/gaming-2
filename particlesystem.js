@@ -71,7 +71,7 @@ class ParticleSystem {
   constructor(params) {
     const uniforms = {
         diffuseTexture: {
-            value: new THREE.TextureLoader().load('./assets/lightning2.png')
+            value: new THREE.TextureLoader().load('https://sl-gaming.s3.amazonaws.com/pvpassets/lightning2.png')
         },
         pointMultiplier: {
             value: window.innerHeight / (0.5 * Math.tan(0.5 * 60.0 * Math.PI / 90.0))
@@ -155,7 +155,7 @@ class ParticleSystem {
               (Math.random() * 2 - 1) * 1.0,
               (Math.random() * 2 - 1) * 1.0,
               (Math.random() * 2 - 1) * 1.0),
-          size: (Math.random() * 0.5 + 0.5) * 1.5,
+          size: (Math.random() * 0.5 + 0.5) * 0.75,
           colour: new THREE.Color(),
           alpha: 1.0,
           life: life,
