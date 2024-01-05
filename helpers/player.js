@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import * as CANNON from "cannon-es";
 
-import ParticleSystem from './particlesystem';
+import PS_lightning from './PS_lightning';
+import PS_fire from './PS_fire';
 // import createComplexPlayer from "./player_v2";
 
 let parryLevel = [0x2196F3,0x009688,0x8BC34A,0xFFEB3B,0xFF5722,0xEB144C];
@@ -34,7 +35,7 @@ export default class Player {
         this.projectile_speed = 100;
 
         this.super_speed = 200;
-        this.power = 0;
+        this.power = 4;
 
 
         this.move_player = this.move_player.bind(this);
@@ -111,7 +112,7 @@ export default class Player {
             e.target.userData.createdAt -= 1000;
           })
 
-        let ps = new ParticleSystem({parent: pMesh, camera})
+        let ps = new PS_lightning({parent: pMesh, camera})
 
         return ({mesh: pMesh, body: pBody, ps, deleteAfter: 3000, isSuper: false});
     }
@@ -150,7 +151,7 @@ export default class Player {
             e.target.userData.createdAt -= 1000;
           })
 
-        let ps = new ParticleSystem({parent: pMesh, camera})
+        let ps = new PS_fire({parent: pMesh, camera})
 
         return ({mesh: pMesh, body: pBody, ps, deleteAfter: 5000, isSuper: true});
     }

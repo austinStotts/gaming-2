@@ -3,17 +3,17 @@
 import * as THREE from 'three';
 import * as CANNON from "cannon-es";
 import 'js-circle-progress';
-import Player from './player.js';
+import Player from './helpers/player.js';
 import { acceleratedRaycast } from 'three-mesh-bvh'
 
 // import quarkScene from "./particle.js";
 import * as THREEQUARKS from "three.quarks"
 
-import createComplexPlayer from "./playermodel.js";
-import arena1 from "./arena1.js"
-import arena2 from "./arena2.js"
+import createComplexPlayer from "./helpers/playermodel.js";
+import arena1 from "./constructs/arena1.js"
+import arena2 from "./constructs/arena2.js"
 
-import ParticleSystem from './particlesystem.js';
+import ParticleSystem from './helpers/PS_lightning.js';
 
 
 // Global Variables
@@ -33,6 +33,7 @@ let onlinePlayerID;
 let onlineRoomID;
 
 let overridewindow = true;
+let bots = true;
 
 
 let defaultSettings = {
@@ -663,8 +664,10 @@ class TrainingBot {
     this.speed = 100;
 
     setInterval(() => {
-      if(onlinePlayerID == undefined) {
-        this.shootProjectile();
+      if(bots) {
+        if(onlinePlayerID == undefined) {
+          this.shootProjectile();
+        }
       }
     }, this.fr)
   }
@@ -803,18 +806,21 @@ let showEnemyParry = () => {
 }
 
 
-
+let calculateVelocity = (pl) => {
+  return (100 + (pl * 20))
+}
 
 let reflectProjectile = (projectile, perfect=false) => {
   if(perfect) {
     PLAYER.time_since_last_parry = 0;
     projectile.userData.createdAt = Date.now();
+    let v = calculateVelocity(projectile.userData.mesh.userData.parryLevel);
     let direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
     let np = new THREE.Vector3();
     PLAYER.mesh.children[1].children[0].getWorldPosition(np);
     projectile.position.set(np.x, np.y, np.z);
-    projectile.velocity.set(direction.x *100, direction.y, direction.z *100);
+    projectile.velocity.set(direction.x * v, direction.y, direction.z * v);
     projectile.userData.mesh.userData.parryLevel += 1;
     projectile.userData.mesh.material.color.setHex(parryLevel[projectile.userData.mesh.userData.parryLevel]);
     showParry(true);

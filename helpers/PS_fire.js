@@ -71,7 +71,7 @@ class ParticleSystem {
   constructor(params) {
     const uniforms = {
         diffuseTexture: {
-            value: new THREE.TextureLoader().load('https://sl-gaming.s3.amazonaws.com/pvpassets/lightning2.png')
+            value: new THREE.TextureLoader().load('./assets/fire.png')
         },
         pointMultiplier: {
             value: window.innerHeight / (0.5 * Math.tan(0.5 * 60.0 * Math.PI / 90.0))
@@ -117,8 +117,8 @@ class ParticleSystem {
       const c = a.clone();
       return c.lerp(b, t);
     });
-    this._colourSpline.AddPoint(0.0, new THREE.Color(0xFFFF80));
-    this._colourSpline.AddPoint(1.0, new THREE.Color(0xFF8080));
+    this._colourSpline.AddPoint(0.0, new THREE.Color(0xFFFFFF));
+    this._colourSpline.AddPoint(1.0, new THREE.Color(0xFFAA44));
 
     this._sizeSpline = new LinearSpline((t, a, b) => {
       return a + t * (b - a);
@@ -149,13 +149,18 @@ class ParticleSystem {
     this.gdfsghk -= n / 75.0;
 
     for (let i = 0; i < n; i++) {
-      const life = 0.2;
+      const life = 0.075;
       this._particles.push({
           position: new THREE.Vector3(
-              (Math.random() * 2 - 1) * 1.0,
-              (Math.random() * 2 - 1) * 1.0,
-              (Math.random() * 2 - 1) * 1.0),
-          size: (Math.random() * 0.5 + 0.5) * 0.75,
+              // (Math.random() * 2 - 1) * 1.0,
+              // (Math.random() * 2 - 1) * 1.0,
+              // (Math.random() * 2 - 1) * 1.0),
+              0,
+              0,
+              0),
+          size: 
+            // (Math.random() * 0.5 + 0.5) * 0.75,
+            1,
           colour: new THREE.Color(),
           alpha: 1.0,
           life: life,

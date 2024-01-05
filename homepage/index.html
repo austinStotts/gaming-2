@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca&family=Source+Code+Pro&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <title>steve's game - home</title>
+</head>
+<body>
+    <div class="content">
+        <div class="title"><span class="title-1">brule</span><span class="title-2">.</span><span class="title-3">ball</span></div>
+        <div class="outline-wrapper">
+            <div class="o-title"><span class="o-alt">a</span>bout</div>
+            <div>brule ball is a online, web based, multiplayer pvp game developed by me, steve</div>
+            <div>from the beggining i borrowed heavily from the rock-paper-scissors philosphy</div>
+            <div class="break"></div>
+            <div>in brule ball, the rock-paper-scissors is as follows... </div>
+            <div><span class="hl-t">throwing</span> a ball is is beaten by a <span class="hl-c">counter</span> - a <span class="hl-c">counter</span> is beaten by a <span class="hl-d">dash</span> - and a <span class="hl-d">dash</span> is beaten by a <span class="hl-t">throw</span></div>
+            <div>in detail, you can counter a thrown ball to negate all damage and send that ball back</div>
+            <div>then to avaid the countered ball you can dash away</div>
+            <div>but be careful! a thrown ball could be waiting for you at the end of that dash</div>
+            <div class="break"></div>
+            <div>the rock paper scissors is complemented with a cooldown based system</div>
+            <div>where all abilities are clearly shown to allow for counterplay</div>
+        </div>
+        <div class="how-to-wrapper shadowbox">
+            <div class="o-title"><span class="o-alt">c</span>ontrols</div>
+            <div class="wasd">
+                <div class="wasd-r1"><span class="w">W</span></div>
+                <div class="wasd-r2"><span class="a">A</span><span class="s">S</span><span class="d">D</span>
+                </div>
+            </div>
+            <div class="wasd-text">typical movement using <span class="wasd-alt">WASD</span></div>
+            <div class="break"></div>
+            <div class="space">space</div>
+            <div class="wasd-text">you can also jump using <span class="wasd-alt">SPACE</span></div>
+            <div class="break"></div>
+            <div class="mouse-controlls">
+                <div class="left-click"><div class="lt">L</div></div><div class="right-click"><div class="rt">R</div></div>
+
+                <!-- <svg class="line1" width="200" height="100"><line x1="55" y1="30" x2="70" y2="30" stroke="white"/></svg>
+                <svg class="line1" width="200" height="100"><line x1="158" y1="30" x2="173" y2="30" stroke="white"/></svg> -->
+            </div>
+            <div class="mouse-text">left click to <span class="hl-t">throw</span> and right click to <span class="hl-d">dash</span></div>
+            <div class="break"></div>
+            <div class="wasd">
+                <div class="wasd-r1 specialwasd"><span class="q gradient-super2">Q</span><span class="w2 gray">W</span><span class="e hl-c">E</span></div>
+                <div class="wasd-r2"><span class="a gray">A</span><span class="s gray">S</span><span class="d gray">D</span></div>
+            </div>
+            <div class="specials-text">press <span class="hl-c">E</span> to <span class="hl-c">counter</span> all projectiles for a brief window</div>
+            <div class="specials-text">press <span class="hl-s">Q</span> to use your <span class="gradient-super">SUPER</span> when the meter is full</div>
+        </div>
+        <div class="abilities">
+            <div class="o-title"><span class="o-alt">A</span>bilities</div>
+            <div class="a-wrapper">
+                <div class="a-icon"><img></div>
+                <div class="a-name">throw</div>
+                <div class="a-btn">left mouse button</div>
+                <div class="a-description">throw 1 standard projectile</div>
+                <div class="a-description">can be countered</div>
+                <div class="a-stats">
+                    <ul class="a-list">
+                        <li>cooldown: <span class="fr">1.5s</span></li>
+                        <li>damage: <span class="fr">1</span></li>
+                        <li>velocity: <span class="fr">100m/s</span></li>
+                        <li>size: <span class="fr">0.5m</span></li>
+                        <li>counter level:<span class="fr">1</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="break"></div>
+            <div class="a-wrapper">
+                <div class="a-icon"><img></div>
+                <div class="a-name">dash</div>
+                <div class="a-btn">right mouse button</div>
+                <div class="a-description">greatly increase horizontal velocity in the direction you are moving</div>
+                <div class="a-description">not affected by where you are looking</div>
+                <div class="a-stats">
+                    <ul class="a-list">
+                        <li>cooldown: <span class="fr">1s</span></li>
+                        <li>velocity burst:<span class="fr">50m/s</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="break"></div>
+            <div class="a-wrapper">
+                <div class="a-icon"><img></div>
+                <div class="a-name">counter</div>
+                <div class="a-btn">E</div>
+                <div class="a-description">counter all damage for a short window</div>
+                <div class="a-description">if timed well - a perfect counter will happen</div>
+                <div class="a-description">perfect counters do a few extra things in addition to blocking/refecting projectiles</div>
+                <div class="a-sub-description">
+                    <div class="a-description">projectiles effected will have thier parry level raised by 1 and velocity increased</div>
+                    <div class="a-description">parry level determines the damage - all standard balls start at 1</div>
+                    <div class="a-description">a perfect counter will also not allow the ball to be countered by anything but another perfect counter</div>
+                    <div class="a-description">when you successfuly perfect counter a ball the normal 1s cooldown will be instantly reset</div>
+                    <div class="a-description">perfect counters also give 1 charge of super</div>
+                </div>
+                <div class="a-stats">
+                    <ul class="a-list">
+                        <li>cooldown: <span class="fr">1s</span></li>
+                        <li>counter window: <span class="fr">300ms</span></li>
+                        <li>perfect counter window: <span class="fr">100ms</span></li>
+                        <li>PC velocity bonus: <span class="fr">(CL<span class="mult">x</span>20)m/s</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="break"></div>
+            <div class="a-wrapper">
+                <div class="a-icon"><img></div>
+                <div class="a-name">super</div>
+                <div class="a-btn">Q</div>
+                <div class="a-description">throw a very larg and very fast ball</div>
+                <div class="a-description">use super charge to launch a powerful projectile</div>
+                <div class="a-description">can still be perfect countered</div>
+                <div class="a-stats">
+                    <ul class="a-list">
+                        <li>cost: <span class="fr">4</span></li>
+                        <li>velocity: <span class="fr">200m/s</span></li>
+                        <li>size: <span class="fr">1m</span></li>
+                        <li>counter level: <span class="fr">2</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="break"></div>
+        </div>
+    </div>
+    <!-- <div class="footer success new-label"><span class="align">austin</span></div> -->
+    <div class="item"><a href=""><p class="label success new-label"><span class="align">austin</span></p></a></div>
+</body>
+</html>

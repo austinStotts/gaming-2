@@ -1,0 +1,513 @@
+html {
+    background-color: black;
+    color: white;
+
+    height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
+.fonts {
+    font-family: 'Signika', sans-serif;
+    font-family: 'Source Code Pro', monospace;  
+    font-family: 'Lexend Deca', sans-serif;
+    font-family: 'Source Code Pro', monospace;  
+}
+  
+::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    background: transparent; /* make scrollbar transparent */
+}
+
+.content {
+    height: 100%;
+    overflow: scroll;
+}
+
+.title {
+    color: #33FF33;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 30px;
+}
+
+.title-1 {
+
+}
+
+.title-2 {
+    animation: blink 1s linear infinite;
+}
+
+.title-3 {
+    
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.how-to-wrapper {
+    font-family: 'Source Code Pro', monospace;
+    font-weight: 400;
+    margin-left: 30px;
+}
+
+.wasd-text {
+    font-family: 'Source Code Pro', monospace;
+    margin-top: 10px;
+}
+
+.wasd {
+    position: relative;
+    display: block;
+    height: fit-content;
+    width: fit-content;
+    /* border: 1px dashed mediumseagreen; */
+}
+
+.wasd-r1 {
+    /* margin-bottom: 6px; */
+}
+
+.wasd-alt {
+    font-style: italic;
+    font-size: 20px;
+    font-weight: 600;
+    color: black;
+    background-color: white;
+    text-shadow: -1px 1px grey;
+    padding: 0px 3px;
+    letter-spacing: 2px;
+}
+
+.wasd-r1 > span {
+    /* font-family: 'Source Code Pro', monospace; */
+    text-align: center;
+    
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    border: 1px solid grey;
+    border-radius: 3px;
+    box-shadow: 2px 2px rgb(67, 67, 67);
+    margin: 2px;
+}
+
+.space {
+    text-align: center;
+    
+    display: inline-block;
+    width: 70px;
+    height: 25px;
+    border: 1px solid grey;
+    border-radius: 3px;
+    box-shadow: 2px 2px rgb(67, 67, 67);
+    margin: 2px;
+}
+
+.wasd-r2 > span {
+    /* font-family: 'Source Code Pro', monospace; */
+    text-align: center;
+    
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    border: 1px solid grey;
+    border-radius: 3px;
+    box-shadow: 2px 2px rgb(67, 67, 67);
+    margin: 2px;
+}
+
+.w {
+    margin-left: 30px !important;
+}
+
+.specialwasd {
+    margin-left: -5px;
+}
+
+.gray {
+    border-color: rgba(128, 128, 128, 0.5) !important;
+    box-shadow: 2px 2px rgba(67, 67, 67, 0.5) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* .a {
+    position: relative;
+    top: 30px;
+    left: 0px;
+}
+
+.s {
+    position: relative;
+    top: 30px;
+    left: 0px;
+}
+
+.d {
+    position: relative;
+    top: 30px;
+    left: 0px;
+} */
+
+
+.q {
+    color: red;
+}
+
+.shadowBox {
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.2);
+    /* Black w/opacity/see-through */
+    border: 3px solid;
+}
+
+.super {
+    text-align: center;
+    text-decoration: underline;
+    font-size: 32px;
+    font-family: monospace;
+    letter-spacing: 5px;
+}
+.super_text_animated {
+    background: linear-gradient(to right, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rainbow_animation 6s ease-in-out infinite;
+    background-size: 400% 100%;
+}
+
+@keyframes rainbow_animation {
+    0%,100% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 100% ;
+    }
+}
+
+
+
+
+.mouse-controlls {
+    border: 2px solid rgb(255, 255, 255);
+    width: fit-content;
+    padding: 1px 2px 0px 2px;
+    border-top-right-radius: 15px 20px;
+    border-top-left-radius: 15px 20px;
+    border-bottom: none;
+}
+
+.mouse-text {
+    font-family: 'Source Code Pro', monospace;
+    margin-top: 10px;
+}
+
+.left-click {
+    height: 60px;
+    width: 30px;
+    /* border-top-right-radius: 10px; */
+    border-top-left-radius: 10px 15px;
+    border: 1px solid white;
+    display: inline-block;
+}
+
+.right-click {
+    height: 60px;
+    width: 30px;
+    border-top-right-radius: 10px 15px;
+    /* border-top-left-radius: 10px; */
+    border: 1px solid white;
+    display: inline-block;
+}
+
+.lt {
+    font-family: 'Source Code Pro', monospace;
+    color: rgb(99, 255, 151);
+    text-align: center;
+    padding-top: 15px;
+}
+
+.rt {
+    font-family: 'Source Code Pro', monospace;
+    color: rgb(151, 90, 255);
+    text-align: center;
+    padding-top: 15px;
+}
+
+
+.specials-text {
+    font-family: 'Source Code Pro', monospace;
+    margin-top: 10px;
+}
+
+
+
+
+
+.outline-wrapper {
+    font-family: 'Source Code Pro', monospace;
+    font-weight: 400;
+    margin-left: 30px;
+}
+
+.hl-c {
+    color: rgb(255, 112, 99);
+    font-style: italic;
+}
+
+.hl-t {
+    color: rgb(99, 255, 151);
+    font-style: italic;
+}
+
+.hl-d {
+    color: rgb(151, 90, 255);
+    font-style: italic;
+}
+
+.break {
+    display: block;
+    width: 400px;
+    border-bottom: 1px solid grey;
+    margin: 15px 10px;
+}
+
+.o-alt {
+    background-color: white;
+    text-shadow: -1px 1px grey;
+    color: black;
+    text-transform: capitalize;
+    font-size: 35px;
+    padding: 0px 3px;
+    margin-right: 2px;
+    border-radius: 1px;
+}
+
+.o-title {
+    font-family: 'Lexend Deca', sans-serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: 26px;
+    margin: 50px 0px 20px 0px;
+    /* letter-spacing: 4px; */
+}
+
+
+
+
+
+
+
+img {
+    border: 1px dashed #33FF33;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.footer {
+    position: absolute;
+    bottom: 0px;
+    font-family: 'Source Code Pro', monospace;
+    text-shadow: -1px 1px 0px #33FF33, 1px -1px 0px rgb(36, 80, 255);
+}
+
+.author::before {
+    content: "austin";
+    display: none;
+}
+
+.author:hover:after {
+    display: none;
+    cursor: pointer;
+    content: "steve";
+}
+
+
+
+
+
+.item{
+    /* width: 30px; */
+}
+a{
+    text-decoration:none;
+}
+.label {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    font-family: 'Source Code Pro', monospace;
+    text-shadow: -1px 1px 0px #33FF33, 1px -1px 0px rgb(36, 80, 255);
+    text-align: center;
+    margin-right: 25px;
+}
+.label.success {
+    /* background-color: #46a546; */
+}
+
+.item a p.new-label span{
+  position: relative;
+  content: 'austin'
+}
+.item:hover a p.new-label span{
+  display: none;
+}
+.item:hover a p.new-label:after{
+  content: 'steve';
+}
+
+
+
+.gradient-super {
+    font-weight: 700;
+    background-image: linear-gradient(45deg, #ff0000, #ff0000);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: hue 1.5s infinite linear;
+}
+
+.gradient-super2 {
+    font-weight: 700;
+    background-image: linear-gradient(45deg, #ff0000, #ff0000);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: hue2 1.5s infinite linear;
+}
+
+@keyframes hue {
+  from {
+    -webkit-filter: hue-rotate(-360deg);
+  }
+  to {
+    -webkit-filter: hue-rotate(0deg);
+  }
+}
+
+@keyframes hue2 {
+    from {
+      -webkit-filter: hue-rotate(0deg);
+    }
+    to {
+      -webkit-filter: hue-rotate(-360deg);
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.abilities {
+    font-family: 'Source Code Pro', monospace;
+    /* font-weight: 600; */
+    margin-left: 30px;
+}
+
+
+.a-sub-description {
+    margin-left: 20px;
+}
+
+.a-list {
+    border: 1px dashed #33FF33;
+    width: fit-content;
+    padding: 5px 10px 5px 10px;
+    list-style: none;
+    width: 300px;
+    font-size: 15px;
+}
+
+.a-list > li {
+    height: 20px;
+}
+
+.fr {
+    float: right;
+    font-style: italic;
+    /* font-size: 18px; */
+    font-weight: 200;
+}
+
+.mult {
+    color: gray;
+}
+
+.a-description:before {
+    content: ">";
+    margin-right: 5px;
+    color: #33FF33;
+}
+
+
+.a-name {
+    font-size: 20px;
+    text-shadow: 1px 1px 5px white;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
