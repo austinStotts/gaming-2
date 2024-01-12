@@ -3,6 +3,7 @@ import * as CANNON from "cannon-es";
 
 import PS_lightning from './PS_lightning';
 import PS_fire from './PS_fire';
+import PS_trail from './PS_trail'
 // import createComplexPlayer from "./player_v2";
 
 let parryLevel = [0x2196F3,0x009688,0x8BC34A,0xFFEB3B,0xFF5722,0xEB144C];
@@ -70,16 +71,7 @@ export default class Player {
     
         let pShape = new CANNON.Sphere(1);
         let pBody = new CANNON.Body({ shape: pShape, mass: 5, linearDamping: 0.05 });
-        
-        // let s = new THREE.Vector3();
-        // camera.getWorldDirection(s);
-        // let c = new THREE.Vector3();
-        // c.copy(camera.position)
-        // console.log("camera position:",c)
-        // console.log("camera direction:",s)
-        // c.lerp(s, 0.1)
-        // console.log("camera with vector:",c)
-        console.log(this.mesh.children[1].children[0])
+
         let sp = new THREE.Vector3();
         this.mesh.children[1].children[0].getWorldPosition(sp);
         pBody.position.set(sp.x, sp.y, sp.z);
@@ -93,16 +85,12 @@ export default class Player {
 
         let target = new THREE.Vector3();
         camera.getWorldDirection(target);
-        console.log("target: ",target);
-        // let direction = new CANNON.Vec3(target.x, target.y, target.z);
         let direction = new CANNON.Vec3(tt.x, tt.y, tt.z);
-        // direction.normalize();
         let initialVelocity = new CANNON.Vec3();
         direction.scale(this.projectile_speed, initialVelocity);
         
         pBody.userData = { mesh: pMesh, cc: "playerProjectile", createdAt: Date.now(), owner: this.id }
         pBody.velocity.copy(initialVelocity);
-
         pMesh.userData.body = pBody;
     
         pBody.addEventListener("collide", (e) => {
@@ -110,9 +98,9 @@ export default class Player {
             if(e.body.userData.cc == "onlineEnemyPlayer") { console.log(`player [${this.id}]   ->   player [${e.body.userData.playerID}]`) }
             e.body.userData.createdAt -= 1000;
             e.target.userData.createdAt -= 1000;
-          })
+        })
 
-        let ps = new PS_lightning({parent: pMesh, camera})
+        let ps = new PS_trail({parent: pMesh, camera})
 
         return ({mesh: pMesh, body: pBody, ps, deleteAfter: 3000, isSuper: false});
     }

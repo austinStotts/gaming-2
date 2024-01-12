@@ -69,7 +69,7 @@ body {
 .how-to-wrapper {
     font-family: 'Source Code Pro', monospace;
     font-weight: 400;
-    margin-left: 30px;
+    margin-left: 50px;
 }
 
 .wasd-text {
@@ -246,14 +246,14 @@ body {
 
 .lt {
     font-family: 'Source Code Pro', monospace;
-    color: rgb(99, 255, 151);
+    /* color: rgb(99, 255, 151); */
     text-align: center;
     padding-top: 15px;
 }
 
 .rt {
     font-family: 'Source Code Pro', monospace;
-    color: rgb(151, 90, 255);
+    /* color: rgb(151, 90, 255); */
     text-align: center;
     padding-top: 15px;
 }
@@ -271,21 +271,21 @@ body {
 .outline-wrapper {
     font-family: 'Source Code Pro', monospace;
     font-weight: 400;
-    margin-left: 30px;
+    margin-left: 50px;
 }
 
 .hl-c {
-    color: rgb(255, 112, 99);
+    text-shadow: 1px 1px rgb(255, 112, 99);
     font-style: italic;
 }
 
 .hl-t {
-    color: rgb(99, 255, 151);
+    text-shadow: 1px 1px rgb(99, 255, 151);
     font-style: italic;
 }
 
 .hl-d {
-    color: rgb(151, 90, 255);
+    text-shadow: 1px 1px rgb(151, 90, 255);
     font-style: italic;
 }
 
@@ -293,7 +293,7 @@ body {
     display: block;
     width: 400px;
     border-bottom: 1px solid grey;
-    margin: 15px 10px;
+    margin: 25px 10px;
 }
 
 .o-alt {
@@ -312,7 +312,7 @@ body {
     font-weight: 300;
     font-style: italic;
     font-size: 26px;
-    margin: 50px 0px 20px 0px;
+    margin: 50px 0px 20px -20px;
     /* letter-spacing: 4px; */
 }
 
@@ -327,6 +327,7 @@ img {
     border-radius: 50%;
     width: 64px;
     height: 64px;
+    box-shadow: 2px 1px 3px #33FF33;
 }
 
 
@@ -402,6 +403,7 @@ a{
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: hue 1.5s infinite linear;
+    text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.75);
 }
 
 .gradient-super2 {
@@ -410,6 +412,7 @@ a{
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: hue2 1.5s infinite linear;
+    text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.75);
 }
 
 @keyframes hue {
@@ -453,7 +456,7 @@ a{
 .abilities {
     font-family: 'Source Code Pro', monospace;
     /* font-weight: 600; */
-    margin-left: 30px;
+    margin-left: 50px;
 }
 
 
@@ -462,7 +465,7 @@ a{
 }
 
 .a-list {
-    border: 1px dashed #33FF33;
+    border: 1px double #33FF33;
     width: fit-content;
     padding: 5px 10px 5px 10px;
     list-style: none;
@@ -491,6 +494,12 @@ a{
     color: #33FF33;
 }
 
+.a-description2:before {
+    content: ">>";
+    margin-right: 5px;
+    color: #33FF33;
+}
+
 
 .a-name {
     font-size: 20px;
@@ -498,7 +507,10 @@ a{
 }
 
 
-
+.bracket {
+    color: #33FF33;
+    animation: blink 2s linear infinite;
+}
 
 
 

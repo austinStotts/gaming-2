@@ -160,6 +160,11 @@
     font-style: italic;
 }
 
+.info-button {
+    color: white;
+    text-decoration: none;
+}
+
 .settings-wrapper {
 
 }
@@ -857,4 +862,20 @@ button:hover {
 .hidden {
     display: none;
 }
+
+
+
+
+
+#greyout {
+    position: fixed;
+    /* margin-left: 50%;
+    margin-top: 50%; */
+    width: 200%;
+    height: 200%;
+    /* opacity: 0.3; */
+    z-index: 700;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 

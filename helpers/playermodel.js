@@ -17,10 +17,10 @@ export default (id, hitbox=false, isSelf=false) => {
     let armGeo = new THREE.BoxGeometry(0.75,2,0.75);
     let legGeo = new THREE.BoxGeometry(0.75,2,0.75);
 
-    let torsoMat = new THREE.MeshBasicMaterial({ color: playerColors[id] || 0xF08080, wireframe: isSelf });
-    let headMat = new THREE.MeshBasicMaterial({ color: 0x8863ff, wireframe: isSelf });
-    let armMat = new THREE.MeshBasicMaterial({ color: 0x63ff63, wireframe: isSelf });
-    let legMat = new THREE.MeshBasicMaterial({ color: 0xffd063, wireframe: isSelf });
+    let torsoMat = new THREE.MeshBasicMaterial({ color: playerColors[id] || 0xFF6688, wireframe: isSelf });
+    let headMat = new THREE.MeshBasicMaterial({ color: 0xFF6688, wireframe: isSelf });
+    let armMat = new THREE.MeshBasicMaterial({ color: 0xFF6688, wireframe: isSelf });
+    let legMat = new THREE.MeshBasicMaterial({ color: 0xFF6688, wireframe: isSelf });
 
     let torsoMesh = new THREE.Mesh(torsoGeo, torsoMat);
     let headMesh = new THREE.Mesh(headGeo, headMat);
@@ -29,6 +29,13 @@ export default (id, hitbox=false, isSelf=false) => {
     let legMeshL = new THREE.Mesh(legGeo, legMat);
     let legMeshR = new THREE.Mesh(legGeo, legMat);
 
+
+    // counter
+    let counterGeo = new THREE.SphereGeometry(0.5);
+    let counterMat = new THREE.MeshBasicMaterial({color: 0x9988FF, wireframe: true});
+
+    let counter = new THREE.Mesh(counterGeo, counterMat);
+
     
     // let crosshair = new THREE.Mesh(new THREE.BoxGeometry(0.1,0.1,0.1), new THREE.MeshBasicMaterial({transparent: true ,wireframe: true}));
     let crosshair = ch();
@@ -36,6 +43,8 @@ export default (id, hitbox=false, isSelf=false) => {
 
     let player = new THREE.Group();
     player.add(torsoMesh, headMesh, armMeshL, armMeshR, legMeshL, legMeshR);
+    player.children.forEach(child => { child.add(new THREE.BoxHelper(child, 0x000000)) })
+    player.add(counter)
     headMesh.position.setY(2.5);
     armMeshL.position.setX(1.3);
     armMeshR.position.setX(-1.3);

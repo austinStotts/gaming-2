@@ -1,0 +1,132 @@
+html {
+    height: 100%;
+    /* overflow-y: scroll; */
+    background-color: black;
+    color: white;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    background: transparent; /* make scrollbar transparent */
+}
+
+.gamemaker-wrapper {
+    border: 1px solid red;
+    display: inline-block;
+    width: 500px;
+    height: 400px;
+    background-color: black;
+}
+
+.map-wrapper {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /* border: 1px dashed orange; */
+    display: grid;
+    grid-template-columns: 80px 80px 80px 80px 80px;
+    grid-template-rows: 60px 60px;
+    row-gap: 10px;
+    column-gap: 20px;
+    /* float: right; */
+}
+
+.map {
+    width: 100%;
+    height:100%;
+    border: 1px solid white;
+    background-image: url("../assets/texture1.png");
+    background-position: -100px -100px;
+}
+
+.map:hover {
+    cursor: pointer;
+    border-color: #33FF33;
+    opacity: 1;
+}
+
+.players-wrapper {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /* border: 1px dashed chartreuse; */
+    display: grid;
+    grid-template-columns: 80px 80px 80px 80px;
+    grid-template-rows: 60px;
+    row-gap: 10px;
+    column-gap: 20px;
+}
+
+
+
+.gm-title {
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.selected {
+    
+    box-shadow: 0px 0px 10px 3px #33FF33;
+    border-color: #33FF33;
+}
+
+.selected:hover {
+    border-color: white;
+    cursor: default !important;
+}
+
+.unselected {
+    opacity: 0.5;
+}
+
+.unavailable {
+
+}
+
+.makeroom-button {
+    position: absolute;
+    border: 1px solid white;
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    padding: 3px 5px;
+    display: inline-block;
+    bottom: 10px;
+    right: 10px;
+}
+
+.cancelroom-button {
+    position: absolute;
+    border: 1px solid white;
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    padding: 3px 5px;
+    display: inline-block;
+    bottom: 10px;
+    left: 10px;
+}
+
+.btn {
+    transition-duration: 0.8s;
+}
+
+.btn:hover {
+    cursor: pointer;
+    border-style: dashed;
+}
+
+.players {
+    color: white;
+    text-align: center;
+    width: 100%;
+    /* height:100%; */
+    padding-top: 15px;
+    border: 1px solid white;
+    font-family: 'Lexend Deca', sans-serif;
+    letter-spacing: 5px;
+    font-size: 20px;
+}
+
+.players:hover {
+    cursor: pointer;
+    border-color: #33FF33;
+    opacity: 1;
+}

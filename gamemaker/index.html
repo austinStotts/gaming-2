@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca&family=Source+Code+Pro&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <title>steve's game - gamemaker</title>
+</head>
+<body>
+    <dialog id="gamemaker" class="gamemaker-wrapper" hidden="false">
+        <div class="gm-title">map</div>
+        <div class="map-wrapper">
+            <div id="arena1" class="map selected"></div>
+            <div id="arena2" class="map unselected"></div>
+            <div id="arena3" class="map unselected"></div>
+            <div id="arena4" class="map unselected"></div>
+            <div id="arena5" class="map unselected"></div>
+            <div id="arena6" class="map unselected"></div>
+        </div>
+        <div class="gm-title">players</div>
+        <div class="players-wrapper">
+            <div id="1v1" class="players selected">1v1</div>
+            <div id="2v2" class="players unselected">2v2</div>
+            <div id="3v3" class="players unselected">3v3</div>
+            <div id="4v4" class="players unselected">4v4</div>
+        </div>
+        <div id="makeroombtn" class="makeroom-button btn">make room</div>
+        <div id="cancelroombtn" class="cancelroom-button btn">cancel</div>
+    </dialog>
+    <script src="./index.js"></script>
+</body>
+</html>

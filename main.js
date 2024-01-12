@@ -33,7 +33,7 @@ let onlinePlayerID;
 let onlineRoomID;
 
 let overridewindow = true;
-let bots = true;
+let bots = false;
 
 
 let defaultSettings = {
@@ -136,8 +136,8 @@ let create_player_body = (player) => {
   let shape = new CANNON.Box(new CANNON.Vec3(1.25,3,1.25));
   let playerBody = new CANNON.Body({ shape: shape, mass: 50, fixedRotation: true, linearDamping: 0.99 });
   let playerMaterial = new CANNON.Material("playerMaterial");
-  playerMaterial.friction = 0.1;
-  playerMaterial.restitution = 0;
+  playerMaterial.friction = 0.05;
+  playerMaterial.restitution = 0.1;
   playerBody.material = playerMaterial;
   playerBody.position.set(l[0],l[1],l[2]);
   playerBody.collisionFilterGroup = 1;
@@ -189,6 +189,9 @@ let create_player = () => {
 
 
 // Grab Pointer Lock on first click
+document.getElementById("greyout").onclick = (e) => {
+  toggleCursorLock(true);
+}
 canvas.onclick = (e) => {
   toggleCursorLock(true);
 }
@@ -248,6 +251,13 @@ let onKeyDown = (event) => {
     case currentSettings.keybinds.menu:
       toggleTab(event);
       break
+    case "x": 
+      animatePlayerX();
+      break
+    case "u":
+      PLAYER.hp -= 1;
+      updateHP();
+      break
   }
 }
 
@@ -276,7 +286,7 @@ window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
 
 let playerInputs = () => {
-  if(!isAlreadyDead) {
+  if(allowMovement) {
     let velocity = new THREE.Vector3();
     let direction = new THREE.Vector3();
     direction.set(0, 0, 0);
@@ -325,32 +335,33 @@ document.addEventListener('mousemove', (event) => {
 
 // !UPDATE GAME
 let updateGame = () => {
-    PLAYER.mesh.position.copy(PLAYER.body.position);
-    // playerMesh.quaternion.copy(PLAYER.body.quaternion);
-  
-    camera.position.copy(PLAYER.body.position);
-    camera.position.y += worldBuildMode==true ? 10 : 2.5;
-    // camera.position.z += 4
-  
-    // let playerGravity = new CANNON.Vec3(0, -500, 0);
-    // let gravityForce = new CANNON.Vec3();
-    // PLAYER.body.vectorToWorldFrame(playerGravity, gravityForce);
-    // PLAYER.body.applyForce(gravityForce, PLAYER.body.position);
+  // move player mesh to player body
+  PLAYER.mesh.position.copy(PLAYER.body.position);
 
-    let tB = new CANNON.Body();
-    tB.velocity.addScaledVector
-    if(PLAYER.body.velocity.y < 0) {
-      PLAYER.body.velocity.y -= 1.0;
-    }
-    // let down = new CANNON.Vec3(0,-500,0);
-    // PLAYER.body.applyForce(down, PLAYER.body.position)
+  // keep camera in the right spot
+  camera.position.copy(PLAYER.body.position);
+  camera.position.y += worldBuildMode==true ? 10 : 2.5;
 
-    let r = 0.3 * Math.sin((2*Math.PI) * 15 * (Date.now()/20000) + 1);
-    let t = 0.1 * Math.sin((2*Math.PI) * 30 * (Date.now()/10000) + 1);
-    PLAYER.mesh.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r*(((PLAYER.body.velocity.x+1) + (PLAYER.body.velocity.z+1))/20));
-    PLAYER.mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r*(((PLAYER.body.velocity.x+1) + (PLAYER.body.velocity.z+1))/20));
-    PLAYER.mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t*3*(((PLAYER.body.velocity.x+1) + (PLAYER.body.velocity.z+1))/20));
-    PLAYER.mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t*3*(((PLAYER.body.velocity.x+1) + (PLAYER.body.velocity.z+1))/20));
+  // player extra gravity
+  let tB = new CANNON.Body();
+  tB.velocity.addScaledVector
+  if(PLAYER.body.velocity.y < 0) {
+    PLAYER.body.velocity.y -= 1.0;
+  }
+
+  // player arm movements - could be smoother when sitching from w > s or s > w
+  if(keys.W) {
+    PLAYER.mesh.children[2].rotation.x = degreeToPi(-(Math.abs(PLAYER.body.velocity.x) + Math.abs(PLAYER.body.velocity.z))*2);
+    PLAYER.mesh.children[3].rotation.x = degreeToPi(-(Math.abs(PLAYER.body.velocity.x) + Math.abs(PLAYER.body.velocity.z))*2);
+  } else if (keys.S) {
+    PLAYER.mesh.children[2].rotation.x = degreeToPi((Math.abs(PLAYER.body.velocity.x) + Math.abs(PLAYER.body.velocity.z))*2);
+    PLAYER.mesh.children[3].rotation.x = degreeToPi((Math.abs(PLAYER.body.velocity.x) + Math.abs(PLAYER.body.velocity.z))*2);
+  } else {
+    if(PLAYER.mesh.children[2].rotation.x > 0) { PLAYER.mesh.children[2].rotation.x -= 0.005 }
+    if(PLAYER.mesh.children[3].rotation.x > 0) { PLAYER.mesh.children[3].rotation.x -= 0.005 }
+    if(PLAYER.mesh.children[2].rotation.x < 0) { PLAYER.mesh.children[2].rotation.x += 0.005 }
+    if(PLAYER.mesh.children[3].rotation.x < 0) { PLAYER.mesh.children[3].rotation.x += 0.005 }
+  }
 }
 
 let removeBodies = (body, i) => {
@@ -424,6 +435,26 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 // and need a more interesting environment to play! 
 
 
+// ----------------------------------------------------------------
+// 1-12-24
+// hello
+// current state of the game:
+// can join rooms with other players and play the game
+// no game structure - just first to get a kill wins
+// using v2 player models with rotation, head tild, and arm movements
+// all player animations are send to other players in the room
+// have an info page explaining basic mechanics and how to play
+
+// need:
+// more game structure
+// like... pick a map and players and load into a map with all players
+// have real win conditions and allow for dying and not ending the game
+// keep working on player models and animations for all abilities
+// players should see when counter is used or dash is used
+// please fix the projectiles... they are inacurate and its somewhat random
+
+
+
 
 // left click    : 0
 // wheel         : 1
@@ -493,16 +524,16 @@ let checkForWall = (start, direction, length) => {
 
 
   
-  let raycast = new THREE.Raycaster(start, direction, 0, length);
-  let intersections = raycast.intersectObjects(scene.children);
-  if(intersections.length > 0) {
-    for(let i = 0; i < intersections.length; i++) {
-      if(intersections[i].object.type == "Mesh") {
-        // console.log("mesh hit", intersections[0].distance);
-        return intersections[0].distance-1
-      }
-    }
-  }
+  // let raycast = new THREE.Raycaster(start, direction, 0, length);
+  // let intersections = raycast.intersectObjects(scene.children);
+  // if(intersections.length > 0) {
+  //   for(let i = 0; i < intersections.length; i++) {
+  //     if(intersections[i].object.type == "Mesh") {
+  //       // console.log("mesh hit", intersections[0].distance);
+  //       return intersections[0].distance-1
+  //     }
+  //   }
+  // }
   return PLAYER.dodge_distance
 }
 
@@ -752,7 +783,15 @@ let parry = () => {
   }
 }
 
-
+let showWinner = (playerID) => {
+  let w = document.getElementById("winner-banner");
+  w.hidden = false;
+  w.innerText = `PLAYER ${playerID} WINS`
+  setTimeout(() => {
+    w.hidden = true;
+    w.innerText = ""
+  }, 2900);
+}
 
 let headsup = document.getElementById("headsup");
 let showParry = (perfect=false) => {
@@ -837,12 +876,29 @@ let reflectProjectile = (projectile, perfect=false) => {
   }
 }
 
+let resetRoom = (pps) => {
+  document.getElementById("greyout").hidden = true;
+  allowMovement = true;
+  PLAYER.power = 0;
+  PLAYER.hp = 10;
+  updateHP();
+  updateSuper();
+  PLAYER.body.position.set(pps[onlinePlayerID][0],pps[onlinePlayerID][1],pps[onlinePlayerID][2]);
+}
 
 
+let checkForGameEnd = () => {
+  if(inRoom) {
+    // show win screen
+    console.log(`player ${onlinePlayerID} loses`);
+    socket.emit("checkforwinner", onlineRoomID);
+  }
+}
 
-
-
-
+let defeat = () => {
+  allowMovement = false;
+  document.getElementById("greyout").hidden = false;
+}
 
 
 // UPDATE HP UI
@@ -851,12 +907,9 @@ let updateHP = (p="n/a") => {
   document.getElementById("hearts").innerText = ("❤️".repeat(PLAYER.hp));
 
   if(PLAYER.hp <= 0) {
-    // show win screen
-    console.log(`player ${onlinePlayerID} loses`);
-    socket.emit("showwinner", onlineRoomID, p)
-    setTimeout(() => {
-      socket.emit("resetroom", onlineRoomID);
-    },3000)
+    if(inRoom) { socket.emit("playerstatus", onlineRoomID, onlinePlayerID, "dead") }
+    checkForGameEnd();
+    defeat();
   }
 }
 
@@ -978,6 +1031,8 @@ let makeOnlinePlayer = (playerID, data) => {
   })
   pMesh.position.set(data.position.x, data.position.y, data.position.z);
   pBody.position.copy(pMesh.position);
+  // pMesh.quaternion.
+  console.log(pMesh)
   scene.add(pMesh);
   world.addBody(pBody);
   onlinePlayers[playerID] = {playerID, mesh: pMesh, body: pBody};
@@ -991,26 +1046,31 @@ let updateOnlinePlayers = (players) => {
       if(pkeys[i] == onlinePlayerID) { 
         // skip if own player
       } else {
-        onlinePlayers[pkeys[i]].mesh.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
-        onlinePlayers[pkeys[i]].mesh.rotation.copy(players[pkeys[i]].rotation);
-        onlinePlayers[pkeys[i]].mesh.children[1].rotation.copy(players[pkeys[i]].faceRotation);
-        onlinePlayers[pkeys[i]].body.position.set(players[pkeys[i]].position.x, players[pkeys[i]].position.y, players[pkeys[i]].position.z);
+        console.log(players[pkeys[i]])
+        onlinePlayers[pkeys[i]].mesh.position.set(players[pkeys[i]].data.position.x, players[pkeys[i]].data.position.y, players[pkeys[i]].data.position.z);
+        onlinePlayers[pkeys[i]].mesh.quaternion.set(players[pkeys[i]].data.quaternion[0],players[pkeys[i]].data.quaternion[1],players[pkeys[i]].data.quaternion[2],players[pkeys[i]].data.quaternion[3]);
+        onlinePlayers[pkeys[i]].mesh.children[1].quaternion.set(players[pkeys[i]].data.head_quaternion[0],players[pkeys[i]].data.head_quaternion[1],players[pkeys[i]].data.head_quaternion[2],players[pkeys[i]].data.head_quaternion[3]);
+        onlinePlayers[pkeys[i]].body.position.set(players[pkeys[i]].data.position.x, players[pkeys[i]].data.position.y, players[pkeys[i]].data.position.z);
       
         // online arm/leg movements
-        if(onlinePlayers[pkeys[i]].body.velocity.x + onlinePlayers[pkeys[i]].body.velocity.z > 0) {
-          let r = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/1000) + 1);
-          let t = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/800) + 1);
-          onlinePlayers[pkeys[i]].mesh.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r);
-          onlinePlayers[pkeys[i]].mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r);
-          onlinePlayers[pkeys[i]].mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t);
-          onlinePlayers[pkeys[i]].mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t);
-        }
+        onlinePlayers[pkeys[i]].mesh.children[2].quaternion.set(players[pkeys[i]].data.left_arm_quaternion[0],players[pkeys[i]].data.left_arm_quaternion[1],players[pkeys[i]].data.left_arm_quaternion[2],players[pkeys[i]].data.left_arm_quaternion[3]);
+        onlinePlayers[pkeys[i]].mesh.children[3].quaternion.set(players[pkeys[i]].data.right_arm_quaternion[0],players[pkeys[i]].data.right_arm_quaternion[1],players[pkeys[i]].data.right_arm_quaternion[2],players[pkeys[i]].data.right_arm_quaternion[3]);
+        onlinePlayers[pkeys[i]].mesh.children[4].quaternion.set(players[pkeys[i]].data.left_leg_quaternion[0],players[pkeys[i]].data.left_leg_quaternion[1],players[pkeys[i]].data.left_leg_quaternion[2],players[pkeys[i]].data.left_leg_quaternion[3]);
+        onlinePlayers[pkeys[i]].mesh.children[5].quaternion.set(players[pkeys[i]].data.right_leg_quaternion[0],players[pkeys[i]].data.right_leg_quaternion[1],players[pkeys[i]].data.right_leg_quaternion[2],players[pkeys[i]].data.right_leg_quaternion[3]);
+        // if(onlinePlayers[pkeys[i]].body.velocity.x + onlinePlayers[pkeys[i]].body.velocity.z > 0) {
+        //   let r = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/1000) + 1);
+        //   let t = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/800) + 1);
+        //   onlinePlayers[pkeys[i]].mesh.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r);
+        //   onlinePlayers[pkeys[i]].mesh.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r);
+        //   onlinePlayers[pkeys[i]].mesh.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t);
+        //   onlinePlayers[pkeys[i]].mesh.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t);
+        // }
       }
     } else {
       if(pkeys[i] == onlinePlayerID) { 
         // skip if own player
       } else {
-        makeOnlinePlayer(pkeys[i], {position: players[pkeys[i]].position, rotation: players[pkeys[i]].rotation});
+        makeOnlinePlayer(pkeys[i], players[pkeys[i]].data);
       }
     }
   }
@@ -1261,6 +1321,7 @@ getPlayerSettings();
 
 
 
+
 // SOCKET METHODS
 // ONLINE AND ROOM METHODS
 
@@ -1317,6 +1378,9 @@ document.getElementById("signup").addEventListener("click", (event) => {
     .catch(error => { console.log(error) });
 })
 
+
+// this is a mess...
+
 document.getElementById("connect").addEventListener("click", (event) => {
     socket = io("http://34.239.48.37/");
     // socket = io("http://localhost:4001");
@@ -1329,38 +1393,18 @@ document.getElementById("connect").addEventListener("click", (event) => {
       onlineRoomID = id;
       lr.classList.remove("unclickable");
       jr.classList.add("unclickable");
-    }); // in the game - invoke a function to put player in room
+    });
     socket.on("roomjoinfail", (id) => { re.textContent = `failed to join room: ${id}` });
     socket.on("leaveroom", () => {
         ridl.textContent = "00000";
         inRoom = false;
         onlinePlayerID = undefined;
     })
-    socket.on("allpositions", (players) => {
-      updateOnlinePlayers(players);
-    })
+    socket.on("allpositions", (players) => { updateOnlinePlayers(players); })
     socket.on("roomprojectiles", rps => { updateRoomProjectiles(rps) })
-    socket.on("takehit", (playerID, pid) => {
-      console.log(`take hit: ${playerID}`);
-      if(playerID == onlinePlayerID) {
-        onlinePlayerCollision(pid);
-      }
-    })
-    socket.on("reset", (pps) => {
-      console.log("RESETING ROOM")
-      PLAYER.hp = 10;
-      updateHP();
-      PLAYER.body.position.set(pps[onlinePlayerID][0],pps[onlinePlayerID][1],pps[onlinePlayerID][2]);
-    })
-    socket.on("winner", (playerID) => {
-      let w = document.getElementById("winner-banner");
-      w.hidden = false;
-      w.innerText = `PLAYER ${playerID} WINS`
-      setTimeout(() => {
-        w.hidden = true;
-        w.innerText = ""
-      }, 2900);
-    })
+    socket.on("takehit", (playerID, pid) => { if(playerID == onlinePlayerID) { onlinePlayerCollision(pid); } })
+    socket.on("reset", (pps) => { resetRoom(pps) })
+    socket.on("winner", (playerID) => { showWinner(playerID) })
     socket.on("removeplayer", (playerID) => { console.log("REMOVING PLAYER", playerID); scene.remove(onlinePlayers[playerID].mesh); world.removeBody(onlinePlayers[playerID].body); delete onlinePlayers[playerID]})
     socket.on("parry", (playerID) => { console.log("THE ENEMY HAS PARRIED", playerID); if(playerID == onlinePlayerID) { showEnemyParry() }})
   })  
@@ -1375,7 +1419,7 @@ document.getElementById("disconnect").addEventListener("click", (event) => {
 })
 
 document.getElementById("makeroom").addEventListener("click", (event) => {
-    socket.emit("makeroom");
+    socket.emit("makeroom", {maxPlayers: 4, map: "arena2"});
 })
 
 document.getElementById("joinroom").addEventListener("click", (event) => {
@@ -1612,7 +1656,10 @@ let useSuper = () => {
 
 
 
-
+let fc = (v) => {
+  if (v>0) { return 1 }
+  else { return -1 }
+}
 
 
 
@@ -1623,6 +1670,31 @@ setInterval(() => {
   // console.log("room_id:", ridl.innerText)
   // console.log(renderer)
   // console.log("\nPLAYER VELOCITY:\n", "x:", PLAYER.body.velocity.x.toFixed(1), "y:", PLAYER.body.velocity.y.toFixed(1), "z:", PLAYER.body.velocity.z.toFixed(1))
+
+  // let test = new CANNON.Body({});
+  // test.v
+
+  // let v = new CANNON.Vec3(PLAYER.body.x,PLAYER.body.y,PLAYER.body.z);
+  // let lv = PLAYER.body.vectorToLocalFrame(v);
+
+  // let lv = PLAYER.body.vectorToWorldFrame(PLAYER.body.velocity)
+
+
+  // let d = new THREE.Mesh();
+  // let localVelocity = PLAYER.mesh.worldToLocal(new THREE.Vector3(PLAYER.body.velocity.x,PLAYER.body.velocity.y,PLAYER.body.velocity.z))
+  // localVelocity.normalize();
+  // camera.getWorldDirection(d);
+  // new THREE.Mesh().rotateOnWorldAxis(PLAYER)
+  // let hold = new CANNON.Vec3();
+  // hold.copy(PLAYER.body.velocity);
+  // hold.normalize();
+  // console.log(hold);
+  // console.log(PLAYER.body);
+
+  // console.log(fc(d.x), fc(d.z));
+  // console.log(PLAYER.body)
+
+
 }, 500);
 
 let start = Date.now();
@@ -1641,12 +1713,22 @@ let getPlayerData = (player) => {
   let position = player.body.position;
   let rotation = player.mesh.rotation;
   let faceRotation = player.mesh.children[1].rotation;
+
+  return( {
+    position: player.body.position,
+    quaternion: player.mesh.quaternion,
+    head_quaternion: player.mesh.children[1].quaternion,
+    left_arm_quaternion: player.mesh.children[2].quaternion,
+    right_arm_quaternion: player.mesh.children[3].quaternion,
+    left_leg_quaternion: player.mesh.children[4].quaternion,
+    right_leg_quaternion: player.mesh.children[5].quaternion,
+  })
   // console.log(faceRotation)
   return {position, rotation, faceRotation}
 }
 
-
-
+setTimeout(() => {getPlayerData(PLAYER)}, 1000)
+// getPlayerData()
 
 
 
@@ -1672,21 +1754,44 @@ let materialArray = new Array(5).fill(new THREE.MeshBasicMaterial({ color: 0xFFF
 // PLAYER X DUMMY
 let playerX = createComplexPlayer();
 
-playerX.position.set(10, 3, -5);
+playerX.position.set(10, 4, -5);
 playerX.rotateY(Math.PI/2);
 scene.add(playerX);
 
-setInterval(() => {
-  let r = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/1000) + 1);
-  let t = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/800) + 1);
-  playerX.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r);
-  playerX.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r);
-  playerX.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t);
-  playerX.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t);
-}, 30)
+// setInterval(() => {
+//   let r = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/1000) + 1);
+//   let t = 0.1 * Math.sin((2*Math.PI) * 2 * (Date.now()/800) + 1);
+//   playerX.children[2].rotateOnAxis(new THREE.Vector3(1,0,0), r);
+//   playerX.children[3].rotateOnAxis(new THREE.Vector3(-1,0,0), r);
+//   playerX.children[4].rotateOnAxis(new THREE.Vector3(-1,0,0), t);
+//   playerX.children[5].rotateOnAxis(new THREE.Vector3(1,0,0), t);
+// }, 30)
+
+// let a = new THREE.Mesh();
+// a.scale
+
+let degreeToPi = (d) => { return ((Math.PI/360)*d) }
+
+// playerX.children[2].rotateOnAxis(new THREE.Vector3(1,0,-1), degreeToPi(-75))
+
+playerX.children[2].rotation.x = degreeToPi(-75);
+playerX.children[2].rotation.z = degreeToPi(75);
+
+playerX.children[3].rotation.x = degreeToPi(-75);
+playerX.children[3].rotation.z = degreeToPi(-75);
 
 
+// playerX.children[2].translateOnAxis(new THREE.Vector3(0,0,1), 1)
+// playerX.children[3].translateOnAxis(new THREE.Vector3(0,0,1), 1)
 
+let animatePlayerX = () => {
+  console.log(playerX)
+  let start = Date.now();
+  let interval = setInterval(() => {
+    playerX.children[playerX.children.length-1].scale.add(new THREE.Vector3(0.75,1,0.4));
+    if(Date.now() - start > 200) { clearInterval(interval); playerX.children[playerX.children.length-1].scale.set(1,1,1) }
+  }, 20)
+}
 
 
 
