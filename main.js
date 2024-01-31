@@ -7,13 +7,13 @@ import Player from './helpers/player.js';
 import { acceleratedRaycast } from 'three-mesh-bvh'
 
 // import quarkScene from "./particle.js";
-import * as THREEQUARKS from "three.quarks"
+// import * as THREEQUARKS from "three.quarks"
 
 import createComplexPlayer from "./helpers/playermodel.js";
-import arena1 from "./constructs/arena1.js"
+// import arena1 from "./constructs/arena1.js"
 import arena2 from "./constructs/arena2.js"
 
-import ParticleSystem from './helpers/PS_lightning.js';
+// import ParticleSystem from './helpers/PS_lightning.js';
 
 
 // Global Variables
