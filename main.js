@@ -1031,8 +1031,6 @@ let makeOnlinePlayer = (playerID, data) => {
   })
   pMesh.position.set(data.position.x, data.position.y, data.position.z);
   pBody.position.copy(pMesh.position);
-  // pMesh.quaternion.
-  console.log(pMesh)
   scene.add(pMesh);
   world.addBody(pBody);
   onlinePlayers[playerID] = {playerID, mesh: pMesh, body: pBody};
@@ -1753,6 +1751,7 @@ let materialArray = new Array(5).fill(new THREE.MeshBasicMaterial({ color: 0xFFF
 
 // PLAYER X DUMMY
 let playerX = createComplexPlayer();
+
 
 playerX.position.set(10, 4, -5);
 playerX.rotateY(Math.PI/2);

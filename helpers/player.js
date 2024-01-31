@@ -19,6 +19,7 @@ export default class Player {
 
         this.mesh;
         this.body;
+        this.face = "default"
 
         this.jump_multiplier = 1.75;
 
